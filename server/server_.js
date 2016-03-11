@@ -2,7 +2,8 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import fs from 'fs';
-import { syncPackage } from './sync';
+import { fetchMetadata } from './fetch';
+import { getMetadata, saveMetadata } from './store';
 
 const environment = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -17,43 +18,36 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/:name', (req, res) => {
   const name = req.params.name;
-  console.log('***', req.originalUrl, name);
+  console.log(`----- ${name} - ${req.originalUrl}`);
 
   if (!name) {
+    console.log('* no name - returning 404');
     res.status(404).send({ message: 'Not found' });
-    console.log('* 404 - no name');
     return;
   }
 
-  console.log('* reading file from fs: ', name);
-  fs.readFile(`./tmp/${name}`, 'utf8', (err, data) => {
-    if (err || !data) {
-      console.log('* no local file found');
-
-      syncPackage(name, (err, data) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          console.log('* 500 - err syncing package');
-          return;
-        }
-
-        if (!data) {
-          res.status(404).send({ message: 'Not found' });
-          console.log('* 404 - no data while syncing');
-          return;
-        }
-
-        res.send(data);
-        return;
-      });
-
+  getMetadata(name, (err, data) => {
+    if (data) {
+      res.send(data);
       return;
     }
 
-    res.send(data);
-    return;
-  });
+    console.log(`* ${name} - no metadata in storage`);
+    fetchMetadata(name, (err, data) => {
+      if (data) {
+        saveMetadata(name, data);
 
+        res.send(data);
+        return;
+      }
+
+      if (err) {
+        res.status(500).send({ message: err });
+      } else {
+        res.status(404).send({ message: 'Not found' });
+      }
+    });
+  });
 });
 
 app.listen(port, host, err => {
