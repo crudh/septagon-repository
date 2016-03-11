@@ -6,7 +6,8 @@
   "main": "server/server.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon --watch server server/server.js"
+    "dev": "cross-env NODE_ENV=development nodemon --watch server server/server.js",
+    "lint": "eslint server"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,10 @@
     "express": "^4.13.4"
   },
   "devDependencies": {
+    "babel-eslint": "^5.0.0",
+    "eslint": "2.2.0",
+    "eslint-config-airbnb": "^6.1.0",
+    "eslint-plugin-react": "^4.2.1",
     "nodemon": "^1.9.1"
   }
 }

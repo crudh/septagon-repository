@@ -2,7 +2,7 @@ import fs from 'fs';
 
 const storage = './tmp';
 
-export const getMetadata = (name, done) => {
+export const loadMetadata = (name, done) => {
   console.log(`* ${name} - reading metadata from store`);
   fs.readFile(`${storage}/${name}`, 'utf8', done);
 };

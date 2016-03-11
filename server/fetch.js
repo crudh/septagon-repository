@@ -19,7 +19,7 @@ export const fetchMetadata = (name, done) => {
   req.on('error', e => {
     console.log(`* ${name} - error fetching metadata`);
     done(e);
-  })
+  });
 
   req.end();
 };
