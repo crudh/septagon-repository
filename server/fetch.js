@@ -1,24 +1,14 @@
-import https from 'https';
+import request from 'request';
 import { rootRegistry } from './global';
 
 export const fetchMetadata = (name, done) => {
-  const req = https.request(`${rootRegistry}/${name}`, res => {
-    let data = '';
-
-    res.on('data', chunk => {
-      data += chunk;
-    });
-
-    res.on('end', () => {
-      console.log(`* ${name} - success fetching metadata`);
-      done(null, data);
-    });
+  request(`${rootRegistry}/${name}`, (error, response, body) => {
+    if (error) {
+      done(error);
+    } else if (response.statusCode < 200 || response.statusCode >= 300) {
+      done(new Error('statusCode was not 2XX'));
+    } else {
+      done(null, body);
+    }
   });
-
-  req.on('error', e => {
-    console.log(`* ${name} - error fetching metadata`);
-    done(e);
-  });
-
-  req.end();
 };
