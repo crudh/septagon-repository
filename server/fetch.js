@@ -1,6 +1,5 @@
 import https from 'https';
-
-const rootRegistry = 'https://registry.npmjs.org';
+import { rootRegistry } from './global';
 
 export const fetchMetadata = (name, done) => {
   const req = https.request(`${rootRegistry}/${name}`, res => {
