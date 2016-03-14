@@ -2,6 +2,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import metadata from './metadata_web';
+import proxy from './proxy_web';
 
 const environment = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -11,6 +12,11 @@ const app = express();
 app.set('env', environment);
 
 metadata.init(app);
+proxy.init(app);
+
+app.get('*', req => {
+  console.log('*** catch all:', req.url);
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
