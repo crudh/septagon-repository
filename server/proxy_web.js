@@ -1,9 +1,9 @@
 import request from 'request';
-import { rootRegistry } from './global';
+import config from './config';
 
 const init = app => {
   app.get('/-/all*', (req, res) => {
-    req.pipe(request(rootRegistry + req.url)).pipe(res);
+    req.pipe(request(config.upstream + req.url)).pipe(res);
   });
 };
 

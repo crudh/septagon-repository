@@ -1,8 +1,8 @@
 import request from 'request';
-import { rootRegistry } from './global';
+import config from './config';
 
 export const fetchMetadata = (name, done) => {
-  request(`${rootRegistry}/${name}`, (error, response, body) => {
+  request(`${config.upstream}/${name}`, (error, response, body) => {
     if (error) {
       done(error);
     } else if (response.statusCode < 200 || response.statusCode >= 300) {
