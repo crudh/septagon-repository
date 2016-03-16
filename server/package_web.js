@@ -6,26 +6,27 @@ const init = app => {
     const name = req.params.name;
     console.log(`----- ${name} - ${req.originalUrl}`);
 
-    const fetchPackageCallback = (err, data) => {
-      if (err) {
-        res.status(500).send({ message: err });
-      } else if (!data) {
-        res.status(404).send({ message: 'Not found' });
-      } else {
-        putPackage(name, data);
+    getPackage(name)
+      .then(data => {
+        console.log(`* ${name} - package_web - sending package to client`);
         res.send(data);
-      }
-    };
-
-    const getPackageCallback = (err, data) => {
-      if (err) {
-        fetchPackage(name, fetchPackageCallback);
-      } else {
-        res.send(data);
-      }
-    };
-
-    getPackage(name, getPackageCallback);
+      })
+      .catch(() => {
+        fetchPackage(name)
+          .then(data => putPackage(name, data))
+          .catch(err => {
+            console.log(`* ${name} - package_web - failed to put package in store: ${err}`);
+          })
+          .then(data => {
+            console.log(`* ${name} - package_web - sending package to client`);
+            res.send(data);
+          })
+          .catch(err => {
+            // TODO better error so we can send either 404 or 500?
+            console.log(`* ${name} - package_web - got an error when fetching package from upstream`);
+            res.status(500).send({ message: err });
+          });
+      });
   });
 };
 

@@ -1,41 +1,55 @@
 import fs from 'fs';
 import config from './config';
 
-export const getPackage = (name, done) => {
-  console.log(`* ${name} - reading package from store`);
+// TODO fix error returns
 
-  fs.stat(`${config.storage}/${name}`, err => {
-    if (err) {
-      console.log(`* ${name} - no package in store`);
-      done(err);
-    } else {
-      fs.readFile(`${config.storage}/${name}/all`, 'utf8', done);
-    }
-  });
-};
+const statPackage = name => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - checking if package dir exists`);
+  fs.stat(`${config.storage}/${name}`, err => err ? reject(err) : resolve());
+});
 
-export const putPackage = (name, data) => {
-  const writeFileCallback = err => {
-    if (err) {
-      console.log(`* ${name} - failed to write package to store`);
-    } else {
-      console.log(`* ${name} - wrote package to store`);
-    }
-  };
+const readPackage = name => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - reading package`);
+  fs.readFile(`${config.storage}/${name}/all`, 'utf8', (err, data) => err ? reject(err) : resolve(data));
+});
 
-  const mkdirCallback = err => {
-    if (err) {
-      console.log(`* ${name} - failed to create package dir in store`);
-    } else {
-      fs.writeFile(`${config.storage}/${name}/all`, data, 'utf8', writeFileCallback);
-    }
-  };
+const writePackage = (name, data) => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - writing package`);
+  fs.writeFile(`${config.storage}/${name}/all`, data, 'utf8', err => err ? reject(err) : resolve());
+});
 
-  fs.stat(`${config.storage}/${name}`, err => {
-    if (err) {
-      fs.mkdir(`${config.storage}/${name}`, mkdirCallback);
-    } else {
-      mkdirCallback();
-    }
-  });
-};
+const createPackageDir = name => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - creating package dir`);
+  fs.mkdir(`${config.storage}/${name}`, err => err ? reject(err) : resolve());
+});
+
+export const getPackage = name => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - getting package from store`);
+
+  statPackage(name)
+    .then(() => readPackage(name))
+    .then(data => {
+      console.log(`* ${name} - store - successfully got package from store`);
+      resolve(data);
+    })
+    .catch(err => {
+      console.log(`* ${name} - store - failed to get package from store: ${err}`);
+      reject(err);
+    });
+});
+
+export const putPackage = (name, data) => new Promise((resolve, reject) => {
+  console.log(`* ${name} - store - putting package in store`);
+
+  statPackage(name)
+    .catch(() => createPackageDir(name))
+    .then(() => writePackage(name, data))
+    .then(() => {
+      console.log(`* ${name} - store - successfully put package in store`);
+      resolve(data);
+    })
+    .catch(err => {
+      console.log(`* ${name} - store - failed to put package in store: ${err}`);
+      reject(err);
+    });
+});
