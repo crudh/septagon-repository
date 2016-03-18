@@ -1,8 +1,7 @@
-/* eslint no-console:0 */
 import bodyParser from 'body-parser';
 import express from 'express';
-import packageWeb from './package_web';
-import proxyWeb from './proxy_web';
+import * as packageWeb from './api/package/package_web';
+import * as proxyWeb from './api/proxy_web';
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
