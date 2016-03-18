@@ -13,18 +13,21 @@ const init = app => {
       })
       .catch(() => {
         fetchPackage(name)
-          .then(data => putPackage(name, data))
-          .catch(err => {
-            console.log(`* ${name} - package_web - failed to put package in store: ${err}`);
-          })
           .then(data => {
-            console.log(`* ${name} - package_web - sending package to client`);
-            res.send(data);
+            putPackage(name, data)
+              .then(() => {
+                console.log(`* ${name} - package_web - sending package to client`);
+                res.send(data);
+              })
+              .catch(err => {
+                console.log(`* ${name} - package_web - got an error when sending package to client`);
+                res.status(500).send({ message: err });
+              });
           })
           .catch(err => {
-            // TODO better error so we can send either 404 or 500?
-            console.log(`* ${name} - package_web - got an error when fetching package from upstream`);
-            res.status(500).send({ message: err });
+            const statusCode = (err && err.statusCode) || 500;
+            console.log(`* ${name} - package_web - got an error when fetching package from upstream (${statusCode})`);
+            res.status(statusCode).send({ message: err });
           });
       });
   });

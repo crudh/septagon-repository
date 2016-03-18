@@ -33,7 +33,7 @@ export const getPackage = name => new Promise((resolve, reject) => {
       resolve(data);
     })
     .catch(err => {
-      console.log(`* ${name} - store - failed to get package from store: ${err}`);
+      console.log(`* ${name} - store - package not available in store`);
       reject(err);
     });
 });
