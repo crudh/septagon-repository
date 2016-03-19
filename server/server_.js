@@ -13,6 +13,10 @@ app.set('env', env);
 packageWeb.init(app);
 proxyWeb.init(app);
 
+app.get('/registry/main', (req, res) => {
+  res.send({ registry_name: 'main' });
+});
+
 app.use((req, res) => {
   console.log('*** catch all:', req.url);
   res.status(404).send({ message: 'Not found' });
