@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import * as packageWeb from './api/package/package_web';
+import * as packageWeb from './api/package_web';
 import * as proxyWeb from './api/proxy_web';
 
 const env = process.env.NODE_ENV || 'development';

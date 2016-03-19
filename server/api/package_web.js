@@ -1,4 +1,4 @@
-import { fetchPackage } from '../../store';
+import { fetchPackage } from '../package';
 
 const getPackageHandler = (req, res, name, version) => {
   fetchPackage(name, version)
