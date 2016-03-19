@@ -5,6 +5,7 @@ export const init = app => {
     const name = req.params.name;
     console.log(`----- ${name} - ${req.originalUrl}`);
 
+    res.set('Content-Type', 'application/json');
     getPackageHandler(req, res, name);
   });
 
@@ -13,6 +14,7 @@ export const init = app => {
     const version = req.params.version;
     console.log(`----- ${name}@${version} - ${req.originalUrl}`);
 
+    res.set('Content-Type', 'application/json');
     getPackageHandler(req, res, name, version);
   });
 };
