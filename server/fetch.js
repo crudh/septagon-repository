@@ -17,10 +17,15 @@ const requestPromise = options => new Promise((resolve, reject) => {
   });
 });
 
-export const fetchPackage = name => new Promise((resolve, reject) => {
+export const fetchPackage = (name, version) => new Promise((resolve, reject) => {
   console.log(`* ${name} - fetch - fetching package from upstream`);
 
-  requestPromise(`${config.upstream}/${name}`)
+  let url = `${config.upstream}/${name}`;
+  if (version) {
+    url += `/${version}`;
+  }
+
+  requestPromise(url)
     .then(data => resolve(data.body))
     .catch(err => reject(err));
 });
