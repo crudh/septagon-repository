@@ -29,4 +29,8 @@ export const init = app => {
     res.set('Content-Type', 'application/json');
     getPackageHandler(req, res, name, version);
   });
+
+  app.get('/registry/main/:name/-/:tarball', (req, res) => {
+
+  });
 };
