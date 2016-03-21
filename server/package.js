@@ -1,6 +1,26 @@
+import es from 'event-stream';
 import fs from 'fs';
 import request from 'request';
+import stream from 'stream';
 import config from './config';
+
+class TarballReplacer extends stream.Transform {
+  constructor() {
+    super({ objectMode: true });
+  }
+
+  _transform(line, encoding, done) {
+    const re = /"tarball":\s?"([^"]*)"/g;
+    const result = re.exec(line);
+    if (result) {
+      const tarballUrl = result[1];
+      console.log(tarballUrl);
+    }
+
+    this.push(line);
+    done();
+  }
+}
 
 const getFileName = (name, version) => version ? `${name}-${version}` : name;
 
@@ -28,13 +48,10 @@ export const fetchPackage = (name, version) => new Promise((resolve, reject) => 
 
   statPath(packageDir)
     .catch(() => createPackageDir(name))
-    .catch(err => {
-      console.log(`* ${name} - store - failed to create package directory in store: ${err}`);
-      reject(err);
-    })
     .then(() => statPath(packageFilePath))
     .then(() => {
       const readStream = fs.createReadStream(packageFilePath);
+      readStream.pipe(es.split()).pipe(new TarballReplacer());
       resolve(readStream);
     })
     .catch(() => {
@@ -52,7 +69,9 @@ export const fetchPackage = (name, version) => new Promise((resolve, reject) => 
               reject(err);
             })
             .on('finish', () => {
-              resolve(fs.createReadStream(packageFilePath));
+              const readStream = fs.createReadStream(packageFilePath);
+              readStream.pipe(es.split()).pipe(new TarballReplacer());
+              resolve(readStream);
             })
         );
     });
