@@ -1,15 +1,15 @@
 import { fetchPackage } from '../package';
 
 const getPackageHandler = (req, res, name, version) => {
-  fetchPackage(name, version)
-    .then(readStream => {
-      readStream.pipe(res);
-    })
-    .catch(err => {
-      const statusCode = (err && err.statusCode) || 500;
+  fetchPackage(name, version, (err, stream) => {
+    if (err) {
+      const statusCode = err.statusCode || 500;
       console.log(`* ${name} - package_web - got an error when getting the package from the store: ${err}`);
       res.status(statusCode).send({ message: 'internal error' });
-    });
+    } else {
+      stream.pipe(res);
+    }
+  });
 };
 
 export const init = app => {
@@ -30,7 +30,7 @@ export const init = app => {
     getPackageHandler(req, res, name, version);
   });
 
-  app.get('/registry/main/:name/-/:tarball', (req, res) => {
+  /* app.get('/registry/main/:name/-/:tarball', (req, res) => {
 
-  });
+  });*/
 };

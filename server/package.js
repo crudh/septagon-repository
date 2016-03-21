@@ -31,48 +31,54 @@ const getUpstreamUrl = (name, version) => {
   return `${baseUrl}/${version}`;
 };
 
-const statPath = path => new Promise((resolve, reject) => {
-  fs.stat(path, err => err ? reject(err) : resolve());
-});
+const checkAndSetupPackageDir = (name, callback) => {
+  fs.stat(`${config.storage}/${name}`, errStat => {
+    if (errStat) {
+      return fs.mkdir(`${config.storage}/${name}`, errMkdir => callback(errMkdir));
+    }
 
-const createPackageDir = name => new Promise((resolve, reject) => {
-  console.log(`* ${name} - store - creating package dir`);
-  fs.mkdir(`${config.storage}/${name}`, err => err ? reject(err) : resolve());
-});
+    return callback();
+  });
+};
 
-export const fetchPackage = (name, version) => new Promise((resolve, reject) => {
-  const packageDir = `${config.storage}/${name}`;
+const checkPackageFile = (name, version, callback) => {
   const fileName = getFileName(name, version);
-  const packageFilePath = `${packageDir}/${fileName}`;
+  fs.stat(`${config.storage}/${name}/${fileName}`, err => callback(err));
+};
+
+const streamPackage = (path, callback) => {
+  const readStream = fs.createReadStream(path);
+  readStream.pipe(es.split()).pipe(new TarballReplacer());
+  callback(null, readStream);
+};
+
+export const fetchPackage = (name, version, callback) => {
+  const fileName = getFileName(name, version);
+  const filePath = `${config.storage}/${name}/${fileName}`;
   console.log(`* ${name} - store - fetching package`);
 
-  statPath(packageDir)
-    .catch(() => createPackageDir(name))
-    .then(() => statPath(packageFilePath))
-    .then(() => {
-      const readStream = fs.createReadStream(packageFilePath);
-      readStream.pipe(es.split()).pipe(new TarballReplacer());
-      resolve(readStream);
-    })
-    .catch(() => {
-      console.log(`* ${name} - store - package not available in store`);
 
-      request(getUpstreamUrl(name, version))
-        .on('error', err => {
-          console.log(`* ${name} - store - network error when fetching package from upstream: ${err}`);
-          reject(err);
-        })
-        .pipe(
-          fs.createWriteStream(packageFilePath)
-            .on('error', err => {
-              console.log(`* ${name} - store - error when saving package to store: ${err}`);
-              reject(err);
-            })
-            .on('finish', () => {
-              const readStream = fs.createReadStream(packageFilePath);
-              readStream.pipe(es.split()).pipe(new TarballReplacer());
-              resolve(readStream);
-            })
-        );
+  return checkAndSetupPackageDir(name, errDir => {
+    if (errDir) return callback(errDir);
+
+    return checkPackageFile(name, version, errFile => {
+      if (errFile) {
+        return request(getUpstreamUrl(name, version))
+          .on('error', errRequest => {
+            console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
+            return callback(errRequest);
+          })
+          .pipe(
+            fs.createWriteStream(filePath)
+              .on('error', errWrite => {
+                console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
+                return callback(errWrite);
+              })
+              .on('finish', () => streamPackage(filePath, callback))
+          );
+      }
+
+      return streamPackage(filePath, callback);
     });
-});
+  });
+};
