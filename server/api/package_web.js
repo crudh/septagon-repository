@@ -13,7 +13,7 @@ const getPackageHandler = (req, res, name, version) => {
 };
 
 export const init = app => {
-  app.get('/registry/main/:name', (req, res) => {
+  app.get('/npm/main/:name', (req, res) => {
     const name = req.params.name;
     console.log(`----- ${name} - ${req.originalUrl}`);
 
@@ -21,7 +21,7 @@ export const init = app => {
     getPackageHandler(req, res, name);
   });
 
-  app.get('/registry/main/:name/:version', (req, res) => {
+  app.get('/npm/main/:name/:version', (req, res) => {
     const name = req.params.name;
     const version = req.params.version;
     console.log(`----- ${name}@${version} - ${req.originalUrl}`);
@@ -30,7 +30,7 @@ export const init = app => {
     getPackageHandler(req, res, name, version);
   });
 
-  /* app.get('/registry/main/:name/-/:tarball', (req, res) => {
+  /* app.get('/npm/main/:name/-/:tarball', (req, res) => {
 
   });*/
 };
