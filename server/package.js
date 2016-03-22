@@ -7,17 +7,13 @@ import config from './config';
 class TarballReplacer extends stream.Transform {
   constructor() {
     super({ objectMode: true });
+
+    const upstreamHost = config.upstream.replace(/https?:\/\//, '');
+    this.upstreamRegExp = new RegExp(`https?:\/\/${upstreamHost}`, 'g');
   }
 
   _transform(line, encoding, done) {
-    const re = /"tarball":\s?"([^"]*)"/g;
-    const result = re.exec(line);
-    if (result) {
-      const tarballUrl = result[1];
-      console.log(tarballUrl);
-    }
-
-    this.push(line);
+    this.push(line.replace(this.upstreamRegExp, `${config.url}/npm/main`));
     done();
   }
 }
@@ -47,8 +43,7 @@ const checkPackageFile = (name, version, callback) => {
 };
 
 const streamPackage = (path, callback) => {
-  const readStream = fs.createReadStream(path);
-  readStream.pipe(es.split()).pipe(new TarballReplacer());
+  const readStream = fs.createReadStream(path).pipe(es.split()).pipe(new TarballReplacer());
   callback(null, readStream);
 };
 
