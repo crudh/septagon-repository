@@ -1,28 +1,11 @@
 import fs from 'fs';
+import mkdirp from 'mkdirp';
 import request from 'request';
 import config from './config';
-import { checkAndSetupPackageDir } from './package';
 
 const streamDistFile = (name, distFile, callback) => {
   const readStream = fs.createReadStream(`${config.storage}/${name}/-/${distFile}`);
   callback(null, readStream);
-};
-
-const checkAndSetupDistDir = (name, callback) => {
-  checkAndSetupPackageDir(name, err => {
-    if (err) {
-      return callback(err);
-    }
-
-    const path = `${config.storage}/${name}/-`;
-    return fs.stat(path, errStat => {
-      if (errStat) {
-        return fs.mkdir(path, errMkdir => callback(errMkdir));
-      }
-
-      return callback();
-    });
-  });
 };
 
 const checkDistFile = (name, distFile, callback) => {
@@ -32,7 +15,7 @@ const checkDistFile = (name, distFile, callback) => {
 export const getDistFile = (name, distFile, callback) => {
   console.log(`* ${name} - store - fetching dist file`);
 
-  return checkAndSetupDistDir(name, errDir => {
+  return mkdirp(`${config.storage}/${name}/-`, errDir => {
     if (errDir) return callback(errDir);
 
     return checkDistFile(name, distFile, errFile => {

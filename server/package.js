@@ -1,5 +1,6 @@
 import es from 'event-stream';
 import fs from 'fs';
+import mkdirp from 'mkdirp';
 import request from 'request';
 import stream from 'stream';
 import config from './config';
@@ -37,24 +38,12 @@ const streamPackage = (path, callback) => {
   callback(null, readStream);
 };
 
-export const checkAndSetupPackageDir = (name, callback) => {
-  const path = `${config.storage}/${name}`;
-
-  fs.stat(path, errStat => {
-    if (errStat) {
-      return fs.mkdir(path, errMkdir => callback(errMkdir));
-    }
-
-    return callback();
-  });
-};
-
 export const getPackage = (name, version, callback) => {
   const fileName = getFileName(name, version);
   const filePath = `${config.storage}/${name}/${fileName}`;
   console.log(`* ${name} - store - fetching package`);
 
-  return checkAndSetupPackageDir(name, errDir => {
+  return mkdirp(`${config.storage}/${name}`, errDir => {
     if (errDir) return callback(errDir);
 
     return checkPackageFile(name, version, errFile => {
