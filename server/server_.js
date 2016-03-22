@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
+import * as distfileWeb from './api/distfile_web';
 import * as packageWeb from './api/package_web';
 import * as proxyWeb from './api/proxy_web';
 
@@ -10,6 +11,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 app.set('env', env);
 
+distfileWeb.init(app);
 packageWeb.init(app);
 proxyWeb.init(app);
 

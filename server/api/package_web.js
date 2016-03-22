@@ -1,14 +1,15 @@
-import { fetchPackage } from '../package';
+import { getPackage } from '../package';
+import { getErrorMessage } from './api_util';
 
 const getPackageHandler = (req, res, name, version) => {
-  fetchPackage(name, version, (err, stream) => {
+  getPackage(name, version, (err, stream) => {
     if (err) {
       const statusCode = err.statusCode || 500;
       console.log(`* ${name} - package_web - got an error when getting the package from the store: ${err}`);
-      res.status(statusCode).send({ message: 'internal error' });
-    } else {
-      stream.pipe(res);
+      return res.status(statusCode).send({ message: getErrorMessage(statusCode) });
     }
+
+    return stream.pipe(res);
   });
 };
 
@@ -29,8 +30,4 @@ export const init = app => {
     res.set('Content-Type', 'application/json');
     getPackageHandler(req, res, name, version);
   });
-
-  /* app.get('/npm/main/:name/-/:tarball', (req, res) => {
-
-  });*/
 };

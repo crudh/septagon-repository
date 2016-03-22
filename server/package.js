@@ -27,16 +27,6 @@ const getUpstreamUrl = (name, version) => {
   return `${baseUrl}/${version}`;
 };
 
-const checkAndSetupPackageDir = (name, callback) => {
-  fs.stat(`${config.storage}/${name}`, errStat => {
-    if (errStat) {
-      return fs.mkdir(`${config.storage}/${name}`, errMkdir => callback(errMkdir));
-    }
-
-    return callback();
-  });
-};
-
 const checkPackageFile = (name, version, callback) => {
   const fileName = getFileName(name, version);
   fs.stat(`${config.storage}/${name}/${fileName}`, err => callback(err));
@@ -47,11 +37,22 @@ const streamPackage = (path, callback) => {
   callback(null, readStream);
 };
 
-export const fetchPackage = (name, version, callback) => {
+export const checkAndSetupPackageDir = (name, callback) => {
+  const path = `${config.storage}/${name}`;
+
+  fs.stat(path, errStat => {
+    if (errStat) {
+      return fs.mkdir(path, errMkdir => callback(errMkdir));
+    }
+
+    return callback();
+  });
+};
+
+export const getPackage = (name, version, callback) => {
   const fileName = getFileName(name, version);
   const filePath = `${config.storage}/${name}/${fileName}`;
   console.log(`* ${name} - store - fetching package`);
-
 
   return checkAndSetupPackageDir(name, errDir => {
     if (errDir) return callback(errDir);
