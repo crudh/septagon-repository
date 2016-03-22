@@ -32,6 +32,7 @@
     "cross-env": "^1.0.7",
     "event-stream": "^3.3.2",
     "express": "^4.13.4",
+    "node-mkdirp": "0.0.1",
     "request": "^2.69.0"
   },
   "devDependencies": {
