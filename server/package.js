@@ -48,19 +48,33 @@ export const getPackage = (name, version, callback) => {
 
     return checkPackageFile(name, version, errFile => {
       if (errFile) {
-        return request(getUpstreamUrl(name, version))
+        const req = request(getUpstreamUrl(name, version));
+        req.pause();
+
+        return req
           .on('error', errRequest => {
             console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
             return callback(errRequest);
           })
-          .pipe(
-            fs.createWriteStream(filePath)
-              .on('error', errWrite => {
-                console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
-                return callback(errWrite);
-              })
-              .on('finish', () => streamPackage(filePath, callback))
-          );
+          .on('response', response => {
+            const statusCode = response.statusCode;
+            if (statusCode < 200 || statusCode >= 300) {
+              const error = new Error(`Got ${statusCode} when fetching package from upstream`);
+              error.statusCode = statusCode;
+              return callback(error);
+            }
+
+            req.pipe(
+              fs.createWriteStream(filePath)
+                .on('error', errWrite => {
+                  console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
+                  return callback(errWrite);
+                })
+                .on('finish', () => streamPackage(filePath, callback))
+            );
+
+            return req.resume();
+          });
       }
 
       return streamPackage(filePath, callback);

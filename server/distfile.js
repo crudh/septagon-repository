@@ -20,19 +20,33 @@ export const getDistFile = (name, distFile, callback) => {
 
     return checkDistFile(name, distFile, errFile => {
       if (errFile) {
-        return request(`${config.upstream}/${name}/-/${distFile}`)
+        const req = request(`${config.upstream}/${name}/-/${distFile}`);
+        req.pause();
+
+        return req
           .on('error', errRequest => {
             console.log(`* ${name} - store - network error when fetching dist file from upstream: ${errRequest}`);
             return callback(errRequest);
           })
-          .pipe(
-            fs.createWriteStream(`${config.storage}/${name}/-/${distFile}`)
-              .on('error', errWrite => {
-                console.log(`* ${name} - store - error when saving dist file to store: ${errWrite}`);
-                return callback(errWrite);
-              })
-              .on('finish', () => streamDistFile(name, distFile, callback))
-          );
+          .on('response', response => {
+            const statusCode = response.statusCode;
+            if (statusCode < 200 || statusCode >= 300) {
+              const error = new Error(`Got ${statusCode} when fetching dist file from upstream`);
+              error.statusCode = statusCode;
+              return callback(error);
+            }
+
+            req.pipe(
+              fs.createWriteStream(`${config.storage}/${name}/-/${distFile}`)
+                .on('error', errWrite => {
+                  console.log(`* ${name} - store - error when saving dist file to store: ${errWrite}`);
+                  return callback(errWrite);
+                })
+                .on('finish', () => streamDistFile(name, distFile, callback))
+            );
+
+            return req.resume();
+          });
       }
 
       return streamDistFile(name, distFile, callback);
