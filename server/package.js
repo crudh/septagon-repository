@@ -40,44 +40,47 @@ const streamPackage = (path, callback) => {
 
 export const getPackage = (name, version, callback) => {
   const fileName = getFileName(name, version);
-  const filePath = `${config.storage}/${name}/${fileName}`;
+  const directoryPath = `${config.storage}/${name}`;
+  const filePath = `${directoryPath}/${fileName}`;
   console.log(`* ${name} - store - fetching package`);
 
-  return mkdirp(`${config.storage}/${name}`, errDir => {
-    if (errDir) return callback(errDir);
+  checkPackageFile(name, version, errFile => {
+    if (errFile) {
+      const req = request(getUpstreamUrl(name, version));
+      req.pause();
 
-    return checkPackageFile(name, version, errFile => {
-      if (errFile) {
-        const req = request(getUpstreamUrl(name, version));
-        req.pause();
+      req.on('error', errRequest => {
+        console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
+        callback(errRequest);
+      })
+      .on('response', response => {
+        const statusCode = response.statusCode;
 
-        return req
-          .on('error', errRequest => {
-            console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
-            return callback(errRequest);
-          })
-          .on('response', response => {
-            const statusCode = response.statusCode;
-            if (statusCode < 200 || statusCode >= 300) {
-              const error = new Error(`Got ${statusCode} when fetching package from upstream`);
-              error.statusCode = statusCode;
-              return callback(error);
+        if (statusCode < 200 || statusCode >= 300) {
+          const error = new Error(`Got ${statusCode} when fetching package from upstream`);
+          error.statusCode = statusCode;
+          callback(error);
+        } else {
+          mkdirp(directoryPath, errDir => {
+            if (errDir) {
+              callback(errDir);
+            } else {
+              req.pipe(
+                fs.createWriteStream(filePath)
+                  .on('error', errWrite => {
+                    console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
+                    callback(errWrite);
+                  })
+                  .on('finish', () => streamPackage(filePath, callback))
+              );
+
+              req.resume();
             }
-
-            req.pipe(
-              fs.createWriteStream(filePath)
-                .on('error', errWrite => {
-                  console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
-                  return callback(errWrite);
-                })
-                .on('finish', () => streamPackage(filePath, callback))
-            );
-
-            return req.resume();
           });
-      }
-
-      return streamPackage(filePath, callback);
-    });
+        }
+      });
+    } else {
+      streamPackage(filePath, callback);
+    }
   });
 };
