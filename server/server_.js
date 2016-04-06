@@ -2,9 +2,8 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import mkdirp from 'mkdirp';
 import config from './config';
-import * as distfileWeb from './api/distfile_web';
-import * as packageWeb from './api/package_web';
-import * as proxyWeb from './api/proxy_web';
+import routes from './routes';
+import * as packageHandlers from './api/package_web';
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -20,9 +19,9 @@ mkdirp(config.storage, err => {
 const app = express();
 app.set('env', env);
 
-distfileWeb.init(app);
-packageWeb.init(app);
-proxyWeb.init(app);
+routes(app, {
+  package: packageHandlers
+});
 
 app.get('/registry/main', (req, res) => {
   res.send({ registry_name: 'main' });
