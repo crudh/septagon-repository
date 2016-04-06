@@ -44,43 +44,39 @@ export const getPackage = (name, version, callback) => {
   const filePath = `${directoryPath}/${fileName}`;
   console.log(`* ${name} - store - fetching package`);
 
-  checkPackageFile(name, version, errFile => {
-    if (errFile) {
-      const req = request(getUpstreamUrl(name, version));
-      req.pause();
+  return checkPackageFile(name, version, errFile => {
+    if (!errFile) return streamPackage(filePath, callback);
 
-      req.on('error', errRequest => {
-        console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
-        callback(errRequest);
-      })
-      .on('response', response => {
-        const statusCode = response.statusCode;
+    const req = request(getUpstreamUrl(name, version));
+    req.pause();
 
-        if (statusCode < 200 || statusCode >= 300) {
-          const error = new Error(`Got ${statusCode} when fetching package from upstream`);
-          error.statusCode = statusCode;
-          callback(error);
-        } else {
-          mkdirp(directoryPath, errDir => {
-            if (errDir) {
-              callback(errDir);
-            } else {
-              req.pipe(
-                fs.createWriteStream(filePath)
-                  .on('error', errWrite => {
-                    console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
-                    callback(errWrite);
-                  })
-                  .on('finish', () => streamPackage(filePath, callback))
-              );
+    return req.on('error', errRequest => {
+      console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
+      callback(errRequest);
+    })
+    .on('response', response => {
+      const statusCode = response.statusCode;
 
-              req.resume();
-            }
-          });
-        }
+      if (statusCode < 200 || statusCode >= 300) {
+        const error = new Error(`Got ${statusCode} when fetching package from upstream`);
+        error.statusCode = statusCode;
+        return callback(error);
+      }
+
+      return mkdirp(directoryPath, errDir => {
+        if (errDir) return callback(errDir);
+
+        req.pipe(
+          fs.createWriteStream(filePath)
+            .on('error', errWrite => {
+              console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
+              callback(errWrite);
+            })
+            .on('finish', () => streamPackage(filePath, callback))
+        );
+
+        return req.resume();
       });
-    } else {
-      streamPackage(filePath, callback);
-    }
+    });
   });
 };

@@ -17,43 +17,39 @@ export const getDistFile = (name, distFile, callback) => {
   const filePath = `${directoryPath}/${distFile}`;
   console.log(`* ${name} - store - fetching dist file`);
 
-  checkDistFile(name, distFile, errFile => {
-    if (errFile) {
-      const req = request(`${config.upstream}/${name}/-/${distFile}`);
-      req.pause();
+  return checkDistFile(name, distFile, errFile => {
+    if (!errFile) return streamDistFile(name, distFile, callback);
 
-      req.on('error', errRequest => {
-        console.log(`* ${name} - store - network error when fetching dist file from upstream: ${errRequest}`);
-        callback(errRequest);
-      })
-      .on('response', response => {
-        const statusCode = response.statusCode;
+    const req = request(`${config.upstream}/${name}/-/${distFile}`);
+    req.pause();
 
-        if (statusCode < 200 || statusCode >= 300) {
-          const error = new Error(`Got ${statusCode} when fetching dist file from upstream`);
-          error.statusCode = statusCode;
-          callback(error);
-        } else {
-          mkdirp(directoryPath, errDir => {
-            if (errDir) {
-              callback(errDir);
-            } else {
-              req.pipe(
-                fs.createWriteStream(filePath)
-                  .on('error', errWrite => {
-                    console.log(`* ${name} - store - error when saving dist file to store: ${errWrite}`);
-                    callback(errWrite);
-                  })
-                  .on('finish', () => streamDistFile(name, distFile, callback))
-              );
+    return req.on('error', errRequest => {
+      console.log(`* ${name} - store - network error when fetching dist file from upstream: ${errRequest}`);
+      callback(errRequest);
+    })
+    .on('response', response => {
+      const statusCode = response.statusCode;
 
-              req.resume();
-            }
-          });
-        }
+      if (statusCode < 200 || statusCode >= 300) {
+        const error = new Error(`Got ${statusCode} when fetching dist file from upstream`);
+        error.statusCode = statusCode;
+        return callback(error);
+      }
+
+      return mkdirp(directoryPath, errDir => {
+        if (errDir) return callback(errDir);
+
+        req.pipe(
+          fs.createWriteStream(filePath)
+            .on('error', errWrite => {
+              console.log(`* ${name} - store - error when saving dist file to store: ${errWrite}`);
+              callback(errWrite);
+            })
+            .on('finish', () => streamDistFile(name, distFile, callback))
+        );
+
+        return req.resume();
       });
-    } else {
-      streamDistFile(name, distFile, callback);
-    }
+    });
   });
 };
