@@ -3,7 +3,7 @@ import express from 'express';
 import mkdirp from 'mkdirp';
 import config from './config';
 import routes from './routes';
-import * as packageHandlers from './api/package_web';
+import * as packageHandlers from './api/packages_web';
 import * as registryHandlers from './api/registry_web';
 
 const env = process.env.NODE_ENV || 'development';
