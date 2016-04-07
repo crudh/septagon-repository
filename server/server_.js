@@ -4,6 +4,7 @@ import mkdirp from 'mkdirp';
 import config from './config';
 import routes from './routes';
 import * as packageHandlers from './api/package_web';
+import * as registryHandlers from './api/registry_web';
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -20,11 +21,8 @@ const app = express();
 app.set('env', env);
 
 routes(app, {
-  package: packageHandlers
-});
-
-app.get('/registry/main', (req, res) => {
-  res.send({ registry_name: 'main' });
+  package: packageHandlers,
+  registry: registryHandlers
 });
 
 app.use((req, res) => {
