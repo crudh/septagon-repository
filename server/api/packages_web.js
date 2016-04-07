@@ -29,6 +29,7 @@ export const fetchDistFile = (req, res) => {
       return handleError(res, err);
     }
 
+    res.set('Content-Type', 'application/octet-stream');
     return stream.pipe(res);
   });
 };
