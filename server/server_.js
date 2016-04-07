@@ -42,3 +42,5 @@ app.listen(port, host, err => {
 
   console.log(`Server running in ${env} mode (http://${host}:${port})`);
 });
+
+export default app;
