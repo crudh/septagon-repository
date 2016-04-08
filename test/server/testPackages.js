@@ -1,6 +1,9 @@
 import { expect, assert } from 'chai';
 import request from 'supertest';
 import app from '../../server/server_';
+import config from '../../server/config';
+
+const localUrlRegex = new RegExp(`^${config.url}`, 'g');
 
 const binaryParser = (res, callback) => {
   res.setEncoding('binary');
@@ -22,9 +25,20 @@ describe('Packages', () => {
         .expect('Content-Type', 'application/json')
         .end((err, res) => {
           if (err) return done(err);
-          expect(err).to.equal(null);
-          expect(res.body.name).to.equal('seamless-immutable-mergers');
-          expect(res.body.versions).to.be.an('object');
+
+          const { name, versions } = res.body;
+          expect(name).to.equal('seamless-immutable-mergers');
+          expect(versions).to.be.an('object');
+
+          Object.keys(versions).forEach(key => {
+            const version = versions[key];
+            expect(version.dist).to.be.an('object');
+
+            const { tarball } = version.dist;
+            expect(tarball).to.be.a('string');
+            assert(tarball.search(localUrlRegex) === 0, 'tarball url should point to local repository');
+          });
+
           return done();
         });
     });
@@ -36,9 +50,16 @@ describe('Packages', () => {
         .expect('Content-Type', 'application/json')
         .end((err, res) => {
           if (err) return done(err);
-          expect(err).to.equal(null);
-          expect(res.body.name).to.equal('seamless-immutable-mergers');
-          expect(res.body.version).to.equal('5.0.0');
+
+          const { name, version, dist } = res.body;
+          expect(name).to.equal('seamless-immutable-mergers');
+          expect(version).to.equal('5.0.0');
+          expect(dist).to.be.an('object');
+
+          const { tarball } = dist;
+          expect(tarball).to.be.a('string');
+          assert(tarball.search(localUrlRegex) === 0, 'tarball url should point to local repository');
+
           return done();
         });
     });
@@ -51,7 +72,6 @@ describe('Packages', () => {
         .parse(binaryParser)
         .end((err, res) => {
           if (err) return done(err);
-          expect(err).to.equal(null);
 
           assert.ok(Buffer.isBuffer(res.body));
 
