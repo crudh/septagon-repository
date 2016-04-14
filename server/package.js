@@ -3,6 +3,7 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
 import stream from 'stream';
+import logger from 'winston';
 import { config } from './server';
 
 class TarballReplacer extends stream.Transform {
@@ -42,7 +43,6 @@ export const getPackage = (name, version, callback) => {
   const fileName = getFileName(name, version);
   const directoryPath = `${config.storage}/${name}`;
   const filePath = `${directoryPath}/${fileName}`;
-  console.log(`* ${name} - store - fetching package`);
 
   return checkPackageFile(name, version, errFile => {
     if (!errFile) return streamPackage(filePath, callback);
@@ -51,7 +51,7 @@ export const getPackage = (name, version, callback) => {
     req.pause();
 
     return req.on('error', errRequest => {
-      console.log(`* ${name} - store - network error when fetching package from upstream: ${errRequest}`);
+      logger.error(`Network error when fetching package ${name}@${version || ''} from upstream`);
       callback(errRequest);
     })
     .on('response', response => {
@@ -69,7 +69,7 @@ export const getPackage = (name, version, callback) => {
         req.pipe(
           fs.createWriteStream(filePath)
             .on('error', errWrite => {
-              console.log(`* ${name} - store - error when saving package to store: ${errWrite}`);
+              logger.error(`Error when writing package ${name}@${version || ''} to storage`);
               callback(errWrite);
             })
             .on('finish', () => streamPackage(filePath, callback))

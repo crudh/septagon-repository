@@ -1,6 +1,7 @@
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
+import logger from 'winston';
 import { config } from './server';
 
 const streamDistFile = (name, distFile, callback) => {
@@ -15,7 +16,6 @@ const checkDistFile = (name, distFile, callback) => {
 export const getDistFile = (name, distFile, callback) => {
   const directoryPath = `${config.storage}/${name}/-`;
   const filePath = `${directoryPath}/${distFile}`;
-  console.log(`* ${name} - store - fetching dist file`);
 
   return checkDistFile(name, distFile, errFile => {
     if (!errFile) return streamDistFile(name, distFile, callback);
@@ -24,7 +24,7 @@ export const getDistFile = (name, distFile, callback) => {
     req.pause();
 
     return req.on('error', errRequest => {
-      console.log(`* ${name} - store - network error when fetching dist file from upstream: ${errRequest}`);
+      logger.error(`Network error when fetching distfile ${distFile} for package ${name} from upstream`);
       callback(errRequest);
     })
     .on('response', response => {
@@ -42,7 +42,7 @@ export const getDistFile = (name, distFile, callback) => {
         req.pipe(
           fs.createWriteStream(filePath)
             .on('error', errWrite => {
-              console.log(`* ${name} - store - error when saving dist file to store: ${errWrite}`);
+              logger.error(`Error when writing distfile ${distFile} for package ${name} to storage`);
               callback(errWrite);
             })
             .on('finish', () => streamDistFile(name, distFile, callback))
