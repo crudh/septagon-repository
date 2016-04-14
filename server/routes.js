@@ -4,4 +4,5 @@ export default (app, handlers) => {
   app.get('/npm/main/-/all*', handlers.package.searchPackage);
 
   app.get('/npm/main', handlers.registry.fetchRegistryInfo);
+  app.get('/npm/-/ping', handlers.registry.ping);
 };
