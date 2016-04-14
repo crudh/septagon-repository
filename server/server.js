@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import mkdirp from 'mkdirp';
+import logger from 'winston';
 import routes from './routes';
 import * as packageHandlers from './api/packages_web';
 import * as registryHandlers from './api/registry_web';
@@ -12,10 +13,24 @@ const configName = process.env.CONFIG || 'default';
 
 export const config = require(`./config/${configName}`).default;
 
+logger.remove(logger.transports.Console);
+logger.add(logger.transports.Console, {
+  level: config.logConsoleLevel
+});
+
+if (config.logFile) {
+  logger.add(logger.transports.File, {
+    filename: config.logFile,
+    level: config.logFileLevel,
+    handleExceptions: true,
+    humanReadableUnhandledException: true
+  });
+}
+
 mkdirp(config.storage, err => {
   if (!err) return;
 
-  console.error(err);
+  logger.error(`Error when creating the storage directory (${config.storage})`, err);
   process.exit(1);
 });
 
@@ -28,7 +43,7 @@ routes(app, {
 });
 
 app.use((req, res) => {
-  console.log('*** catch all:', req.url);
+  logger.error(`Unhandled URL: ${req.url}`);
   res.status(404).send({ message: 'Not found' });
 });
 
@@ -38,9 +53,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(port, host, err => {
   if (err) {
-    console.log(err);
+    logger.error('Error in the web application', err);
     return;
   }
 
-  console.log(`Server running in ${env} mode (http://${host}:${port})`);
+  logger.info(`Server running in ${env} mode (http://${host}:${port})`);
 });

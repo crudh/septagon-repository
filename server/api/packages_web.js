@@ -1,4 +1,5 @@
 import request from 'request';
+import logger from 'winston';
 import { config } from '../server';
 import { getDistFile } from '../distfile';
 import { getPackage } from '../package';
@@ -21,11 +22,11 @@ const handleError = (res, err) => {
 export const fetchDistFile = (req, res) => {
   const name = req.params.name;
   const distFile = req.params.distFile;
-  console.log(`----- ${name} - ${req.originalUrl}`);
+  logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`);
 
   getDistFile(name, distFile, (err, stream) => {
     if (err) {
-      console.log(`* ${name} - package_web - got an error when getting the dist file from the store: ${err}`);
+      logger.error(`Error when fetching distfile ${distFile} for package ${name}`, err);
       return handleError(res, err);
     }
 
@@ -37,11 +38,11 @@ export const fetchDistFile = (req, res) => {
 export const fetchPackage = (req, res) => {
   const name = req.params.name;
   const version = req.params.version;
-  console.log(`----- ${name}@${version || ''} - ${req.originalUrl}`);
+  logger.info(`Fetching package ${name}@${version || ''} (${req.originalUrl})`);
 
   getPackage(name, version, (err, stream) => {
     if (err) {
-      console.log(`* ${name} - package_web - got an error when getting the package from the store: ${err}`);
+      logger.error(`Error when fetching package ${name}@${version || ''}`, err);
       return handleError(res, err);
     }
 
