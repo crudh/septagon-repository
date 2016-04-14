@@ -1,7 +1,7 @@
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
-import config from './config';
+import { config } from './server';
 
 const streamDistFile = (name, distFile, callback) => {
   const readStream = fs.createReadStream(`${config.storage}/${name}/-/${distFile}`);
