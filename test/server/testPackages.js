@@ -1,9 +1,9 @@
 import { expect, assert } from 'chai';
 import request from 'supertest';
-import app from '../../server/server_';
-import config from '../../server/config';
+import app from './testApp';
+import testConfig from './testConfig';
 
-const localUrlRegex = new RegExp(`^${config.url}`, 'g');
+const localUrlRegex = new RegExp(`^${testConfig.url}`, 'g');
 
 const binaryParser = (res, callback) => {
   res.setEncoding('binary');
