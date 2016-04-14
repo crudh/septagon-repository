@@ -1,5 +1,5 @@
 import request from 'request';
-import config from '../config';
+import { config } from '../server';
 import { getDistFile } from '../distfile';
 import { getPackage } from '../package';
 

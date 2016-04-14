@@ -3,7 +3,7 @@ import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
 import stream from 'stream';
-import config from './config';
+import { config } from './server';
 
 class TarballReplacer extends stream.Transform {
   constructor() {

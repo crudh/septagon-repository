@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import app from './testApp';
+import { app } from '../../server/server';
 
 describe('Registry', () => {
   describe('API', () => {
