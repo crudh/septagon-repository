@@ -1,5 +1,5 @@
 node_modules
 repository
-testRepository
+tmp
 npm-debug.log
 server.log
