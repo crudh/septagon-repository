@@ -15,5 +15,16 @@ describe('Registry', () => {
           return done();
         });
     });
+
+    it('should respond to ping', done => {
+      request(app)
+        .get('/npm/-/ping')
+        .expect(200)
+        .end((err) => {
+          if (err) return done(err);
+          expect(err).to.equal(null);
+          return done();
+        });
+    });
   });
 });
