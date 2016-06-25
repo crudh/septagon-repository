@@ -9,8 +9,9 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/server_.js",
     "build": "cross-env NODE_ENV=production webpack -p",
-    // fix npm watch and stuff
-    "dev": "cross-env NODE_ENV=development nodemon --watch server server/server_.js",
+    "dev": "npm-run-all --parallel dev:server dev:client",
+    "dev:server": "cross-env NODE_ENV=development nodemon --watch server server/server_.js",
+    "dev:client": "cross-env NODE_ENV=development webpack --watch --config webpack.config.js",
     "lint": "eslint server test",
     "test": "npm-run-all test:clean test:server",
     "test:server": "cross-env CONFIG=test mocha --compilers js:babel-core/register --recursive server/test/test*.js --timeout 10000",
