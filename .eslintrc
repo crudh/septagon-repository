@@ -8,6 +8,7 @@
     "comma-dangle": [2, "never"],
     "max-len": [2, 120, 4],
     "no-confusing-arrow": 0,
-    "no-console": 0
+    "no-console": 0,
+    "react/jsx-space-before-closing": [1, "never"]
   }
 }
