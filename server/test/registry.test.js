@@ -1,3 +1,4 @@
+/* eslint import/no-extraneous-dependencies: "off" */
 import { expect } from 'chai';
 import request from 'supertest';
 import { app } from '../server';
@@ -20,7 +21,7 @@ describe('Registry', () => {
       request(app)
         .get('/npm/-/ping')
         .expect(200)
-        .end((err) => {
+        .end(err => {
           if (err) return done(err);
           expect(err).to.equal(null);
           return done();

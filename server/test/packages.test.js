@@ -1,3 +1,4 @@
+/* eslint import/no-extraneous-dependencies: "off" */
 import { expect, assert } from 'chai';
 import request from 'supertest';
 import { app, config } from '../server';

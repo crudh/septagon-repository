@@ -8,17 +8,17 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
-import promiseMiddleware from 'redux-promise-middleware';
+// import promiseMiddleware from 'redux-promise-middleware';
 import routes from './routes/routes';
 import rootReducer from './reducers/reducers';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 
 const middlewares = [
-  thunk,
-  promiseMiddleware({
+  thunk
+  /* promiseMiddleware({
     promiseTypeSuffixes: ['REQUEST', 'SUCCESS', 'FAILURE']
-  })
+  })*/
 ];
 
 injectTapEventPlugin();
