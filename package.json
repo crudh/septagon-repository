@@ -14,7 +14,7 @@
     "dev:client": "cross-env NODE_ENV=development webpack --watch --config webpack.config.js",
     "lint": "eslint server test",
     "test": "npm-run-all test:clean test:server",
-    "test:server": "cross-env CONFIG=test mocha --compilers js:babel-core/register --recursive server/test/test*.js --timeout 10000",
+    "test:server": "cross-env CONFIG=test mocha --compilers js:babel-core/register --recursive server/test/*.test.js --timeout 10000",
     "test:clean": "rimraf tmp/testRepository"
   },
   "dependencies": {
