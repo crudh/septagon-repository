@@ -1,8 +1,10 @@
+import config from 'config';
 import request from 'request';
 import logger from 'winston';
-import { config } from '../server';
 import { getDistFile } from '../distfile';
 import { getPackage } from '../package';
+
+const serverConfig = config.get('server');
 
 const getMessage = statusCode => {
   switch (statusCode) {
@@ -52,5 +54,5 @@ export const fetchPackage = (req, res) => {
 };
 
 export const searchPackage = (req, res) => {
-  req.pipe(request(config.upstream + req.url)).pipe(res);
+  req.pipe(request(serverConfig.upstream + req.url)).pipe(res);
 };

@@ -1,0 +1,9 @@
+{
+  "server": {
+    "storage": "./tmp/testRepository",
+    "log": {
+      "console": null,
+      "file": null
+    }
+  }
+}

@@ -1,21 +1,23 @@
+import config from 'config';
 import es from 'event-stream';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
 import stream from 'stream';
 import logger from 'winston';
-import { config } from './server';
+
+const serverConfig = config.get('server');
 
 class TarballReplacer extends stream.Transform {
   constructor() {
     super({ objectMode: true });
 
-    const upstreamHost = config.upstream.replace(/https?:\/\//, '');
+    const upstreamHost = serverConfig.upstream.replace(/https?:\/\//, '');
     this.upstreamRegExp = new RegExp(`https?:\/\/${upstreamHost}`, 'g');
   }
 
   _transform(line, encoding, done) {
-    this.push(line.replace(this.upstreamRegExp, `${config.url}/npm/main`));
+    this.push(line.replace(this.upstreamRegExp, `${serverConfig.url}/npm/main`));
     done();
   }
 }
@@ -23,7 +25,7 @@ class TarballReplacer extends stream.Transform {
 const getFileName = (name, version) => version ? `${name}-${version}` : name;
 
 const getUpstreamUrl = (name, version) => {
-  const baseUrl = `${config.upstream}/${name}`;
+  const baseUrl = `${serverConfig.upstream}/${name}`;
   if (!version) return baseUrl;
 
   return `${baseUrl}/${version}`;
@@ -31,7 +33,7 @@ const getUpstreamUrl = (name, version) => {
 
 const checkPackageFile = (name, version, callback) => {
   const fileName = getFileName(name, version);
-  fs.stat(`${config.storage}/${name}/${fileName}`, err => callback(err));
+  fs.stat(`${serverConfig.storage}/${name}/${fileName}`, err => callback(err));
 };
 
 const streamPackage = (path, callback) => {
@@ -41,7 +43,7 @@ const streamPackage = (path, callback) => {
 
 export const getPackage = (name, version, callback) => {
   const fileName = getFileName(name, version);
-  const directoryPath = `${config.storage}/${name}`;
+  const directoryPath = `${serverConfig.storage}/${name}`;
   const filePath = `${directoryPath}/${fileName}`;
 
   return checkPackageFile(name, version, errFile => {
