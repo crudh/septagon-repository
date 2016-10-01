@@ -1,3 +1,4 @@
+/* global document */
 import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
@@ -42,7 +43,9 @@ const rootElement = document.getElementById('root');
 try {
   render(
     <Provider store={store}>
-      <Router children={routes} history={history}/>
+      <Router history={history}>
+        {routes}
+      </Router>
     </Provider>,
     rootElement
   );
