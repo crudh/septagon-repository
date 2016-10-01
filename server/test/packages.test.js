@@ -1,9 +1,11 @@
 /* eslint import/no-extraneous-dependencies: "off" */
+import config from 'config';
 import { expect, assert } from 'chai';
 import request from 'supertest';
-import { app, config } from '../server';
+import { app } from '../server';
 
-const localUrlRegex = new RegExp(`^${config.url}`, 'g');
+const serverConfig = config.get('server');
+const localUrlRegex = new RegExp(`^${serverConfig.url}`, 'g');
 
 const binaryParser = (res, callback) => {
   res.setEncoding('binary');

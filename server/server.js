@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import config from 'config';
 import express from 'express';
 import mkdirp from 'mkdirp';
 import logger from 'winston';
@@ -9,28 +10,22 @@ import * as registryHandlers from './api/registry_web';
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
 const port = process.env.PORT || 3000;
-const configName = process.env.CONFIG || 'default';
-
-export const config = require(`./config/${configName}`).default;
+const serverConfig = config.get('server');
 
 logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console, {
-  level: config.logConsoleLevel
-});
 
-if (config.logFile) {
-  logger.add(logger.transports.File, {
-    filename: config.logFile,
-    level: config.logFileLevel,
-    handleExceptions: true,
-    humanReadableUnhandledException: true
-  });
+if (serverConfig.log.console) {
+  logger.add(logger.transports.Console, serverConfig.log.console);
 }
 
-mkdirp(config.storage, err => {
+if (serverConfig.log.file) {
+  logger.add(logger.transports.File, serverConfig.log.file);
+}
+
+mkdirp(serverConfig.storage, err => {
   if (!err) return;
 
-  logger.error(`Error when creating the storage directory (${config.storage})`, err);
+  logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
   process.exit(1);
 });
 

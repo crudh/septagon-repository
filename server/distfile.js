@@ -1,26 +1,28 @@
+import config from 'config';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
 import logger from 'winston';
-import { config } from './server';
+
+const serverConfig = config.get('server');
 
 const streamDistFile = (name, distFile, callback) => {
-  const readStream = fs.createReadStream(`${config.storage}/${name}/-/${distFile}`);
+  const readStream = fs.createReadStream(`${serverConfig.storage}/${name}/-/${distFile}`);
   callback(null, readStream);
 };
 
 const checkDistFile = (name, distFile, callback) => {
-  fs.stat(`${config.storage}/${name}/-/${distFile}`, err => callback(err));
+  fs.stat(`${serverConfig.storage}/${name}/-/${distFile}`, err => callback(err));
 };
 
 export const getDistFile = (name, distFile, callback) => {
-  const directoryPath = `${config.storage}/${name}/-`;
+  const directoryPath = `${serverConfig.storage}/${name}/-`;
   const filePath = `${directoryPath}/${distFile}`;
 
   return checkDistFile(name, distFile, errFile => {
     if (!errFile) return streamDistFile(name, distFile, callback);
 
-    const req = request(`${config.upstream}/${name}/-/${distFile}`);
+    const req = request(`${serverConfig.upstream}/${name}/-/${distFile}`);
     req.pause();
 
     return req.on('error', errRequest => {
