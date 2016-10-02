@@ -1,8 +1,8 @@
 import config from 'config';
 import request from 'request';
 import logger from 'winston';
-import { getDistFile } from '../distfile';
-import { getPackage } from '../package';
+import { getDistFile } from '../handlers/distfile';
+import { getPackage } from '../handlers/package';
 
 const serverConfig = config.get('server');
 
