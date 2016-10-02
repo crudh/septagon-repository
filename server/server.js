@@ -4,8 +4,8 @@ import express from 'express';
 import mkdirp from 'mkdirp';
 import logger from 'winston';
 import routes from './routes';
-import * as packageApi from './api/packages_web';
-import * as registryApi from './api/registry_web';
+import * as packageApi from './api/packages_api';
+import * as registryApi from './api/registry_api';
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
