@@ -1,28 +1,25 @@
-import config from 'config';
 import fs from 'fs';
 import mkdirp from 'mkdirp';
 import request from 'request';
 import logger from 'winston';
 
-const serverConfig = config.get('server');
-
-const streamDistFile = (name, distFile, callback) => {
-  const readStream = fs.createReadStream(`${serverConfig.storage}/${name}/-/${distFile}`);
+const streamDistFile = (repo, name, distFile, callback) => {
+  const readStream = fs.createReadStream(`${repo.storage}/${name}/-/${distFile}`);
   callback(null, readStream);
 };
 
-const checkDistFile = (name, distFile, callback) => {
-  fs.stat(`${serverConfig.storage}/${name}/-/${distFile}`, err => callback(err));
+const checkDistFile = (repo, name, distFile, callback) => {
+  fs.stat(`${repo.storage}/${name}/-/${distFile}`, err => callback(err));
 };
 
-export const getDistFile = (name, distFile, callback) => {
-  const directoryPath = `${serverConfig.storage}/${name}/-`;
+export const getDistFile = (repo, name, distFile, callback) => {
+  const directoryPath = `${repo.storage}/${name}/-`;
   const filePath = `${directoryPath}/${distFile}`;
 
-  return checkDistFile(name, distFile, errFile => {
-    if (!errFile) return streamDistFile(name, distFile, callback);
+  return checkDistFile(repo, name, distFile, errFile => {
+    if (!errFile) return streamDistFile(repo, name, distFile, callback);
 
-    const req = request(`${serverConfig.upstream}/${name}/-/${distFile}`);
+    const req = request(`${repo.upstream}/${name}/-/${distFile}`);
     req.pause();
 
     return req.on('error', errRequest => {
@@ -47,7 +44,7 @@ export const getDistFile = (name, distFile, callback) => {
               logger.error(`Error when writing distfile ${distFile} for package ${name} to storage`);
               callback(errWrite);
             })
-            .on('finish', () => streamDistFile(name, distFile, callback))
+            .on('finish', () => streamDistFile(repo, name, distFile, callback))
         );
 
         return req.resume();

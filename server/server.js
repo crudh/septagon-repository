@@ -1,3 +1,4 @@
+import _forEach from 'lodash/fp/forEach';
 import bodyParser from 'body-parser';
 import config from 'config';
 import express from 'express';
@@ -22,12 +23,14 @@ if (serverConfig.log.file) {
   logger.add(logger.transports.File, serverConfig.log.file);
 }
 
-mkdirp(serverConfig.storage, err => {
-  if (!err) return;
+_forEach(repo => {
+  mkdirp(repo.storage, err => {
+    if (!err) return;
 
-  logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
-  process.exit(1);
-});
+    logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
+    process.exit(1);
+  });
+})(serverConfig.repos);
 
 export const app = express();
 app.set('env', env);

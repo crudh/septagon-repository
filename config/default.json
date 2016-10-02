@@ -1,8 +1,12 @@
 {
   "server": {
     "url": "http://localhost:3000",
-    "upstream": "https://registry.npmjs.org",
-    "storage": "./repository",
+    "repos": {
+      "main": {
+        "upstream": "https://registry.npmjs.org",
+        "storage": "./repository"
+      }
+    },
     "log": {
       "file": {
         "filename": "server.log",

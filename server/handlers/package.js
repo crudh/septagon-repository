@@ -9,10 +9,10 @@ import logger from 'winston';
 const serverConfig = config.get('server');
 
 class TarballReplacer extends stream.Transform {
-  constructor() {
+  constructor(repo) {
     super({ objectMode: true });
 
-    const upstreamHost = serverConfig.upstream.replace(/https?:\/\//, '');
+    const upstreamHost = repo.upstream.replace(/https?:\/\//, '');
     this.upstreamRegExp = new RegExp(`https?:\/\/${upstreamHost}`, 'g');
   }
 
@@ -24,32 +24,32 @@ class TarballReplacer extends stream.Transform {
 
 const getFileName = (name, version) => version ? `${name}-${version}` : name;
 
-const getUpstreamUrl = (name, version) => {
-  const baseUrl = `${serverConfig.upstream}/${name}`;
+const getUpstreamUrl = (repo, name, version) => {
+  const baseUrl = `${repo.upstream}/${name}`;
   if (!version) return baseUrl;
 
   return `${baseUrl}/${version}`;
 };
 
-const checkPackageFile = (name, version, callback) => {
+const checkPackageFile = (repo, name, version, callback) => {
   const fileName = getFileName(name, version);
-  fs.stat(`${serverConfig.storage}/${name}/${fileName}`, err => callback(err));
+  fs.stat(`${repo.storage}/${name}/${fileName}`, err => callback(err));
 };
 
-const streamPackage = (path, callback) => {
-  const readStream = fs.createReadStream(path).pipe(es.split()).pipe(new TarballReplacer());
+const streamPackage = (repo, path, callback) => {
+  const readStream = fs.createReadStream(path).pipe(es.split()).pipe(new TarballReplacer(repo));
   callback(null, readStream);
 };
 
-export const getPackage = (name, version, callback) => {
+export const getPackage = (repo, name, version, callback) => {
   const fileName = getFileName(name, version);
-  const directoryPath = `${serverConfig.storage}/${name}`;
+  const directoryPath = `${repo.storage}/${name}`;
   const filePath = `${directoryPath}/${fileName}`;
 
-  return checkPackageFile(name, version, errFile => {
-    if (!errFile) return streamPackage(filePath, callback);
+  return checkPackageFile(repo, name, version, errFile => {
+    if (!errFile) return streamPackage(repo, filePath, callback);
 
-    const req = request(getUpstreamUrl(name, version));
+    const req = request(getUpstreamUrl(repo, name, version));
     req.pause();
 
     return req.on('error', errRequest => {
@@ -74,7 +74,7 @@ export const getPackage = (name, version, callback) => {
               logger.error(`Error when writing package ${name}@${version || ''} to storage`);
               callback(errWrite);
             })
-            .on('finish', () => streamPackage(filePath, callback))
+            .on('finish', () => streamPackage(repo, filePath, callback))
         );
 
         return req.resume();

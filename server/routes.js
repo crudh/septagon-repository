@@ -1,8 +1,12 @@
-export default (app, api) => {
-  app.get('/npm/main/:name/:version?', api.package.fetchPackage);
-  app.get('/npm/main/:name/-/:distFile', api.package.fetchDistFile);
-  app.get('/npm/main/-/all*', api.package.searchPackage);
+import { createValidation, validatorRepository } from './api/common_api';
 
-  app.get('/npm/main', api.registry.fetchRegistryInfo);
+const validate = createValidation(validatorRepository);
+
+export default (app, api) => {
   app.get('/npm/-/ping', api.registry.ping);
+  app.get('/npm/:repo', validate(api.registry.fetchRegistryInfo));
+
+  app.get('/npm/:repo/:name/:version?', validate(api.package.fetchPackage));
+  app.get('/npm/:repo/:name/-/:distFile', validate(api.package.fetchDistFile));
+  app.get('/npm/:repo/-/all*', validate(api.package.searchPackage));
 };
