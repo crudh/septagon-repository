@@ -4,8 +4,8 @@ import express from 'express';
 import mkdirp from 'mkdirp';
 import logger from 'winston';
 import routes from './routes';
-import * as packageHandlers from './api/packages_web';
-import * as registryHandlers from './api/registry_web';
+import * as packageApi from './api/packages_web';
+import * as registryApi from './api/registry_web';
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -33,8 +33,8 @@ export const app = express();
 app.set('env', env);
 
 routes(app, {
-  package: packageHandlers,
-  registry: registryHandlers
+  package: packageApi,
+  registry: registryApi
 });
 
 app.use((req, res) => {
