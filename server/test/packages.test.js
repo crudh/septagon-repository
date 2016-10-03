@@ -43,6 +43,13 @@ const fetchMainPackageFile = done => {
     });
 };
 
+const fetchMainPackageFileNonexistingRepo = done => {
+  request(app)
+    .get('/npm/nonexisting/seamless-immutable-mergers')
+    .expect(404)
+    .end(done);
+};
+
 const fetchVersionedPackageFile = done => {
   request(app)
     .get('/npm/main/seamless-immutable-mergers/5.0.0')
@@ -64,6 +71,13 @@ const fetchVersionedPackageFile = done => {
     });
 };
 
+const fetchVersionedPackageFileNonexistingRepo = done => {
+  request(app)
+    .get('/npm/nonexisting/seamless-immutable-mergers/5.0.0')
+    .expect(404)
+    .end(done);
+};
+
 const fetchPackageDistFile = done => {
   request(app)
     .get('/npm/main/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz')
@@ -79,15 +93,31 @@ const fetchPackageDistFile = done => {
     });
 };
 
+const fetchPackageDistFileNonexistingRepo = done => {
+  request(app)
+    .get('/npm/nonexisting/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz')
+    .expect(404)
+    .end(done);
+};
+
 describe('Packages', () => {
   describe('API', () => {
-    it('should be able to fetch a main package file', fetchMainPackageFile);
-    it('should be able to fetch a main package file when it is cached', fetchMainPackageFile);
+    describe('Fetch main package file', () => {
+      it('should be able to fetch a main package file', fetchMainPackageFile);
+      it('should be able to fetch a main package file when it is cached', fetchMainPackageFile);
+      it('should return 404 if the repo doesn\'t exist', fetchMainPackageFileNonexistingRepo);
+    });
 
-    it('should be able to fetch a package file by version', fetchVersionedPackageFile);
-    it('should be able to fetch a package file by version when it is cached', fetchVersionedPackageFile);
+    describe('Fetch versioned package file', () => {
+      it('should be able to fetch a package file by version', fetchVersionedPackageFile);
+      it('should be able to fetch a package file by version when it is cached', fetchVersionedPackageFile);
+      it('should return 404 if the repo doesn\'t exist', fetchVersionedPackageFileNonexistingRepo);
+    });
 
-    it('should be able to fetch a package distfile', fetchPackageDistFile);
-    it('should be able to fetch a package distfile when it is cached', fetchPackageDistFile);
+    describe('Fetch package dist file', () => {
+      it('should be able to fetch a package distfile', fetchPackageDistFile);
+      it('should be able to fetch a package distfile when it is cached', fetchPackageDistFile);
+      it('should return 404 if the repo doesn\'t exist', fetchPackageDistFileNonexistingRepo);
+    });
   });
 });
