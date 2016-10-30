@@ -13,7 +13,7 @@ class TarballReplacer extends stream.Transform {
     super({ objectMode: true });
 
     const upstreamHost = repo.upstream.replace(/https?:\/\//, '');
-    this.upstreamRegExp = new RegExp(`https?:\/\/${upstreamHost}`, 'g');
+    this.upstreamRegExp = new RegExp(`https?://${upstreamHost}`, 'g');
   }
 
   _transform(line, encoding, done) {
