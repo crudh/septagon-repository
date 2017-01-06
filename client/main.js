@@ -9,34 +9,26 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
-// import promiseMiddleware from 'redux-promise-middleware';
 import routes from './routes/routes';
-import rootReducer from './reducers/reducers';
+import reducer from './reducers/reducers';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 
 const middlewares = [
   thunk
-  /* promiseMiddleware({
-    promiseTypeSuffixes: ['REQUEST', 'SUCCESS', 'FAILURE']
-  })*/
 ];
 
-injectTapEventPlugin();
-
 if (nodeEnv === 'development') {
+  console.log('[Development mode activated]');
   middlewares.push(createLogger());
 }
 
 const store = createStore(
-  rootReducer,
+  reducer,
   applyMiddleware(...middlewares)
 );
 
-if (nodeEnv === 'development') {
-  console.log('[Development mode activated]');
-}
-
+injectTapEventPlugin();
 const history = syncHistoryWithStore(browserHistory, store);
 const rootElement = document.getElementById('root');
 
