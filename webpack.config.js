@@ -1,51 +1,44 @@
 /* eslint import/no-extraneous-dependencies: "off" */
-const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 
 const config = {
-  entry: path.join(__dirname, 'client/main.js'),
+  entry: {
+    main: './client/main.js',
+    vendor: ['react', 'react-dom', 'react-tap-event-plugin', 'react-router',
+      'react-router-redux', 'react-redux', 'redux', 'redux-logger', 'redux-thunk']
+  },
   output: {
-    path: path.join(__dirname, 'public/build'),
-    filename: 'bundle.js'
+    path: './public/build',
+    filename: '[chunkhash].[name].js'
   },
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(nodeEnv)
+    new webpack.optimize.CommonsChunkPlugin({
+      names: ['vendor', 'manifest']
+    }),
+    new HtmlWebpackPlugin({
+      template: './client/template.html',
+      filename: '../index.html'
     })
   ],
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader?cacheDirectory'
-      },
-      {
-        test: /\.css$/,
-        exclude: /node_modules/,
-        loader: 'style-loader!css-loader'
       }
     ]
+  },
+  devtool: 'cheap-module-source-map',
+  performance: {
+    hints: nodeEnv === 'production' ? 'warning' : false
   }
 };
 
-if (nodeEnv === 'production') {
-  config.plugins.push(
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
-      compressor: {
-        warnings: false
-      }
-    })
-  );
-}
-
 if (nodeEnv === 'development') {
-  config.devtool = 'cheap-module-source-map';
-
   config.plugins.push(
     new webpack.NoErrorsPlugin()
   );

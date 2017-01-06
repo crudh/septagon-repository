@@ -2,5 +2,6 @@ node_modules
 repository
 tmp
 public/build
+public/index.html
 npm-debug.log
 server.log
