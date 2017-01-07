@@ -1,5 +1,4 @@
 /* global document */
-// FIXME add the babel plugin that transforms the polyfill depending on browser support
 import 'babel-polyfill';
 import React from 'react';
 import { render } from 'react-dom';
