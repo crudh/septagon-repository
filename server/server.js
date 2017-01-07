@@ -35,6 +35,8 @@ _forEach(repo => {
 export const app = express();
 app.set('env', env);
 
+app.use(express.static('./public'));
+
 routes(app, {
   package: packageApi,
   registry: registryApi
