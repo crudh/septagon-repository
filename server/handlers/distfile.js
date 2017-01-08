@@ -1,7 +1,7 @@
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import request from 'request';
-import logger from 'winston';
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const request = require('request');
+const logger = require('winston');
 
 const streamDistFile = (repo, name, distFile, callback) => {
   const readStream = fs.createReadStream(`${repo.storage}/${name}/-/${distFile}`);
@@ -12,7 +12,7 @@ const checkDistFile = (repo, name, distFile, callback) => {
   fs.stat(`${repo.storage}/${name}/-/${distFile}`, err => callback(err));
 };
 
-export const getDistFile = (repo, name, distFile, callback) => {
+const getDistFile = (repo, name, distFile, callback) => {
   const directoryPath = `${repo.storage}/${name}/-`;
   const filePath = `${directoryPath}/${distFile}`;
 
@@ -51,4 +51,8 @@ export const getDistFile = (repo, name, distFile, callback) => {
       });
     });
   });
+};
+
+module.exports = {
+  getDistFile
 };

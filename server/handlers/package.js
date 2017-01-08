@@ -1,10 +1,10 @@
-import config from 'config';
-import es from 'event-stream';
-import fs from 'fs';
-import mkdirp from 'mkdirp';
-import request from 'request';
-import stream from 'stream';
-import logger from 'winston';
+const config = require('config');
+const es = require('event-stream');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const request = require('request');
+const stream = require('stream');
+const logger = require('winston');
 
 const serverConfig = config.get('server');
 
@@ -41,7 +41,7 @@ const streamPackage = (repo, path, callback) => {
   callback(null, readStream);
 };
 
-export const getPackage = (repo, name, version, callback) => {
+const getPackage = (repo, name, version, callback) => {
   const fileName = getFileName(name, version);
   const directoryPath = `${repo.storage}/${name}`;
   const filePath = `${directoryPath}/${fileName}`;
@@ -81,4 +81,8 @@ export const getPackage = (repo, name, version, callback) => {
       });
     });
   });
+};
+
+module.exports = {
+  getPackage
 };

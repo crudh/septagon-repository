@@ -1,8 +1,8 @@
 /* eslint import/no-extraneous-dependencies: "off" */
-import config from 'config';
-import { expect, assert } from 'chai';
-import request from 'supertest';
-import { app } from '../server';
+const config = require('config');
+const { expect, assert } = require('chai');
+const request = require('supertest');
+const { app } = require('../server');
 
 const serverConfig = config.get('server');
 const localUrlRegex = new RegExp(`^${serverConfig.url}`, 'g');

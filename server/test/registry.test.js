@@ -1,7 +1,7 @@
 /* eslint import/no-extraneous-dependencies: "off" */
-import { expect } from 'chai';
-import request from 'supertest';
-import { app } from '../server';
+const { expect } = require('chai');
+const request = require('supertest');
+const { app } = require('../server');
 
 describe('Registry', () => {
   describe('API', () => {

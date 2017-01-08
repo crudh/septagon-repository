@@ -1,13 +1,13 @@
-import config from 'config';
-import request from 'request';
-import logger from 'winston';
-import { handleError } from './common_api';
-import { getDistFile } from '../handlers/distfile';
-import { getPackage } from '../handlers/package';
+const config = require('config');
+const request = require('request');
+const logger = require('winston');
+const { handleError } = require('./common_api');
+const { getDistFile } = require('../handlers/distfile');
+const { getPackage } = require('../handlers/package');
 
 const reposConfig = config.get('server.repos');
 
-export const fetchDistFile = (req, res) => {
+const fetchDistFile = (req, res) => {
   const repo = req.params.repo;
   const name = req.params.name;
   const distFile = req.params.distFile;
@@ -24,7 +24,7 @@ export const fetchDistFile = (req, res) => {
   });
 };
 
-export const fetchPackage = (req, res) => {
+const fetchPackage = (req, res) => {
   const repo = req.params.repo;
   const name = req.params.name;
   const version = req.params.version;
@@ -41,8 +41,14 @@ export const fetchPackage = (req, res) => {
   });
 };
 
-export const searchPackage = (req, res) => {
+const searchPackage = (req, res) => {
   const repo = req.params.repo;
 
   req.pipe(request(reposConfig[repo].upstream + req.url)).pipe(res);
+};
+
+module.exports = {
+  fetchDistFile,
+  fetchPackage,
+  searchPackage
 };

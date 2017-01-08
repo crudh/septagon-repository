@@ -1,12 +1,12 @@
-import _forEach from 'lodash/fp/forEach';
-import bodyParser from 'body-parser';
-import config from 'config';
-import express from 'express';
-import mkdirp from 'mkdirp';
-import logger from 'winston';
-import routes from './routes';
-import * as packageApi from './api/packages_api';
-import * as registryApi from './api/registry_api';
+const _forEach = require('lodash/fp/forEach');
+const bodyParser = require('body-parser');
+const config = require('config');
+const express = require('express');
+const mkdirp = require('mkdirp');
+const logger = require('winston');
+const routes = require('./routes');
+const packagesApi = require('./api/packages_api');
+const registryApi = require('./api/registry_api');
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -32,13 +32,13 @@ _forEach(repo => {
   });
 })(serverConfig.repos);
 
-export const app = express();
+const app = express();
 app.set('env', env);
 
 app.use(express.static('./public'));
 
 routes(app, {
-  package: packageApi,
+  package: packagesApi,
   registry: registryApi
 });
 
@@ -59,3 +59,7 @@ app.listen(port, host, err => {
 
   logger.info(`Server running in ${env} mode (http://${host}:${port})`);
 });
+
+module.exports = {
+  app
+};

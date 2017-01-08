@@ -1,4 +1,4 @@
-import config from 'config';
+const config = require('config');
 
 const serverConfig = config.get('server');
 
@@ -11,13 +11,13 @@ const getErrorMessage = statusCode => {
   }
 };
 
-export const handleError = (res, err) => {
+const handleError = (res, err) => {
   const statusCode = err.statusCode || 500;
   res.set('Content-Type', 'application/json');
   return res.status(statusCode).send({ message: getErrorMessage(statusCode) });
 };
 
-export const validatorRepository = (req, res) => {
+const validatorRepository = (req, res) => {
   const repo = req.params.repo;
 
   if (serverConfig.repos[repo]) return true;
@@ -27,7 +27,7 @@ export const validatorRepository = (req, res) => {
   return false;
 };
 
-export const createValidation = (...validators) => (
+const createValidation = (...validators) => (
   api => (
     (req, res) => {
       const allPassed = validators.every(validator => validator(req, res));
@@ -37,3 +37,9 @@ export const createValidation = (...validators) => (
     }
   )
 );
+
+module.exports = {
+  handleError,
+  validatorRepository,
+  createValidation
+};
