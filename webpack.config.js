@@ -32,15 +32,12 @@ const config = {
       }
     ]
   },
-  devtool: 'cheap-module-source-map',
-  performance: {
-    hints: nodeEnv === 'production' ? 'warning' : false
-  }
+  devtool: 'cheap-module-source-map'
 };
 
 if (nodeEnv === 'development') {
   config.plugins.push(
-    new webpack.NoErrorsPlugin()
+    new webpack.NoEmitOnErrorsPlugin()
   );
 }
 
