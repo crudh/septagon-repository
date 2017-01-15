@@ -19,7 +19,7 @@ const middlewares = [
 ];
 
 if (nodeEnv === 'development') {
-  console.log('[Development mode activated]');
+  console.info('[Development mode activated]');
   middlewares.push(createLogger());
 }
 
