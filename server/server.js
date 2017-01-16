@@ -6,8 +6,8 @@ const mkdirp = require('mkdirp');
 const logger = require('winston');
 const path = require('path');
 const routes = require('./routes');
-const packagesApi = require('./api/packages_api');
-const registryApi = require('./api/registry_api');
+const npmPackagesAPI = require('./npm/api/packages_api');
+const npmRegistryAPI = require('./npm/api/registry_api');
 
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || '0.0.0.0';
@@ -39,8 +39,10 @@ app.set('env', env);
 app.use(express.static('./public'));
 
 routes(app, {
-  package: packagesApi,
-  registry: registryApi
+  npm: {
+    packages: npmPackagesAPI,
+    registry: npmRegistryAPI
+  }
 });
 
 app.get('*', (req, res) => {
