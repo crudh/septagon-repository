@@ -3,18 +3,21 @@ const { createValidation, validatorRepository } = require('./common/api/common_a
 
 const validate = createValidation(validatorRepository);
 
+const unhandledUrl = (req, res) => {
+  logger.error(`Unhandled URL: ${req.url}`);
+  res.status(404).send({ message: 'Not found' });
+};
+
 const routes = (app, api) => {
+  app.get('/admin/config/repos', api.admin.config.fetchReposConfig);
+  app.get('/admin/*', unhandledUrl);
+
   app.get('/npm/-/ping', api.npm.registry.ping);
   app.get('/npm/:repo', validate(api.npm.registry.fetchRegistryInfo));
-
   app.get('/npm/:repo/:name/:version?', validate(api.npm.packages.fetchPackage));
   app.get('/npm/:repo/:name/-/:distFile', validate(api.npm.packages.fetchDistFile));
   app.get('/npm/:repo/-/all*', validate(api.npm.packages.searchPackage));
-
-  app.get('/npm/*', (req, res) => {
-    logger.error(`Unhandled URL: ${req.url}`);
-    res.status(404).send({ message: 'Not found' });
-  });
+  app.get('/npm/*', unhandledUrl);
 };
 
 module.exports = routes;

@@ -6,6 +6,7 @@ const mkdirp = require('mkdirp');
 const logger = require('winston');
 const path = require('path');
 const routes = require('./routes');
+const adminConfigAPI = require('./admin/api/config_api');
 const npmPackagesAPI = require('./npm/api/packages_api');
 const npmRegistryAPI = require('./npm/api/registry_api');
 
@@ -39,6 +40,9 @@ app.set('env', env);
 app.use(express.static('./public'));
 
 routes(app, {
+  admin: {
+    config: adminConfigAPI
+  },
   npm: {
     packages: npmPackagesAPI,
     registry: npmRegistryAPI
