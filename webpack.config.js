@@ -4,11 +4,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 
+const isExternal = module => {
+  const userRequest = module.userRequest;
+
+  if (typeof userRequest !== 'string') return false;
+  return userRequest.indexOf('node_modules') >= 0;
+};
+
 const config = {
   entry: {
-    main: './client/main.js',
-    vendor: ['react', 'react-dom', 'react-tap-event-plugin', 'react-router',
-      'react-router-redux', 'react-redux', 'redux', 'redux-logger', 'redux-thunk']
+    main: './client/main.js'
   },
   output: {
     path: './public/build',
@@ -16,7 +21,11 @@ const config = {
   },
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'manifest']
+      names: 'vendor',
+      minChunks: isExternal
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'manifest'
     }),
     new HtmlWebpackPlugin({
       template: './client/template.html',
