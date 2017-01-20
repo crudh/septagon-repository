@@ -1,5 +1,6 @@
 /* global document */
 import 'babel-polyfill';
+import 'isomorphic-fetch';
 import React from 'react';
 import { render } from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
