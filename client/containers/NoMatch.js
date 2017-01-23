@@ -1,9 +1,9 @@
 import React from 'react';
 
-const App = () => (
+const NoMatch = () => (
   <div>
     No match
   </div>
 );
 
-export default App;
+export default NoMatch;

@@ -32,7 +32,7 @@ _forEach(repo => {
     logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
     process.exit(1);
   });
-})(serverConfig.repos);
+}, serverConfig.repos);
 
 const app = express();
 app.set('env', env);
