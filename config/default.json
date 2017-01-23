@@ -1,6 +1,10 @@
 {
   "server": {
-    "url": "http://localhost:3000",
+    "location": {
+      "protocol": "http",
+      "host": "localhost",
+      "port": "3000"
+    },
     "repos": {
       "main": {
         "upstream": "https://registry.npmjs.org",

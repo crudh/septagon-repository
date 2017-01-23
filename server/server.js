@@ -10,10 +10,11 @@ const adminConfigAPI = require('./admin/api/config_api');
 const npmPackagesAPI = require('./npm/api/packages_api');
 const npmRegistryAPI = require('./npm/api/registry_api');
 
-const env = process.env.NODE_ENV || 'development';
-const host = process.env.HOST || '0.0.0.0';
-const port = process.env.PORT || 3000;
 const serverConfig = config.get('server');
+
+const host = serverConfig.location.host;
+const port = serverConfig.location.port;
+const env = process.env.NODE_ENV || 'development';
 
 logger.remove(logger.transports.Console);
 

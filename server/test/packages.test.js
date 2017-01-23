@@ -3,9 +3,10 @@ const config = require('config');
 const { expect, assert } = require('chai');
 const request = require('supertest');
 const { app } = require('../server');
+const { getServerUrl } = require('../utils/urls');
 
 const serverConfig = config.get('server');
-const localUrlRegex = new RegExp(`^${serverConfig.url}`, 'g');
+const localUrlRegex = new RegExp(`^${getServerUrl(serverConfig.location)}`, 'g');
 
 const binaryParser = (res, callback) => {
   res.setEncoding('binary');

@@ -5,6 +5,7 @@ const mkdirp = require('mkdirp');
 const request = require('request');
 const stream = require('stream');
 const logger = require('winston');
+const { getServerUrl } = require('../../utils/urls');
 
 const serverConfig = config.get('server');
 
@@ -17,7 +18,9 @@ class TarballReplacer extends stream.Transform {
   }
 
   _transform(line, encoding, done) {
-    this.push(line.replace(this.upstreamRegExp, `${serverConfig.url}/npm/main`));
+    this.push(line.replace(this.upstreamRegExp,
+      `${getServerUrl(serverConfig.location)}/npm/main`));
+
     done();
   }
 }
