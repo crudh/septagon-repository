@@ -9,9 +9,6 @@ const unhandledUrl = (req, res) => {
 };
 
 const routes = (app, api) => {
-  app.get('/admin/config/repos', api.admin.config.fetchReposConfig);
-  app.get('/admin/*', unhandledUrl);
-
   app.get('/npm/-/ping', api.npm.registry.ping);
   app.get('/npm/:repo', validate(api.npm.registry.fetchRegistryInfo));
   app.get('/npm/:repo/:name/:version?', validate(api.npm.packages.fetchPackage));

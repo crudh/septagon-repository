@@ -1,5 +1,4 @@
 {
-  "parser": "babel-eslint",
   "extends": "airbnb",
   "env": {
     "mocha": true
@@ -12,9 +11,5 @@
     "no-underscore-dangle": 0,
 
     "import/prefer-default-export": 0,
-
-    "react/jsx-filename-extension": 0,
-    "react/jsx-space-before-closing": [1, "never"],
-    "react/jsx-tag-spacing": [1, { "beforeSelfClosing": "never" }]
   }
 }
