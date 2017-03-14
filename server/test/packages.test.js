@@ -44,6 +44,13 @@ const fetchMainPackageFile = done => {
     });
 };
 
+const fetchMainPackageFileNoUpstream = done => {
+  request(app)
+    .get('/npm/standalone/seamless-immutable-mergers')
+    .expect(404)
+    .end(done);
+};
+
 const fetchMainPackageFileNonexistingRepo = done => {
   request(app)
     .get('/npm/nonexisting/seamless-immutable-mergers')
@@ -70,6 +77,13 @@ const fetchVersionedPackageFile = done => {
 
       return done();
     });
+};
+
+const fetchVersionedPackageFileNoUpstream = done => {
+  request(app)
+    .get('/npm/standalone/seamless-immutable-mergers/5.0.0')
+    .expect(404)
+    .end(done);
 };
 
 const fetchVersionedPackageFileNonexistingRepo = done => {
@@ -101,24 +115,45 @@ const fetchPackageDistFileNonexistingRepo = done => {
     .end(done);
 };
 
+const fetchPackageDistFileNoUpstream = done => {
+  request(app)
+    .get('/npm/standalone/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz')
+    .expect(404)
+    .end(done);
+};
+
+const searchPackageNoUpstream = done => {
+  request(app)
+    .get('/npm/standalone/-/all')
+    .expect(404)
+    .end(done);
+};
+
 describe('Packages', () => {
   describe('API', () => {
     describe('Fetch main package file', () => {
       it('should be able to fetch a main package file', fetchMainPackageFile);
       it('should be able to fetch a main package file when it is cached', fetchMainPackageFile);
+      it('should return 404 if not stored locally and no upstream is defined', fetchMainPackageFileNoUpstream);
       it('should return 404 if the repo doesn\'t exist', fetchMainPackageFileNonexistingRepo);
     });
 
     describe('Fetch versioned package file', () => {
       it('should be able to fetch a package file by version', fetchVersionedPackageFile);
       it('should be able to fetch a package file by version when it is cached', fetchVersionedPackageFile);
+      it('should return 404 if not stored locally and no upstream is defined', fetchVersionedPackageFileNoUpstream);
       it('should return 404 if the repo doesn\'t exist', fetchVersionedPackageFileNonexistingRepo);
     });
 
     describe('Fetch package dist file', () => {
       it('should be able to fetch a package distfile', fetchPackageDistFile);
       it('should be able to fetch a package distfile when it is cached', fetchPackageDistFile);
+      it('should return 404 if not stored locally and no upstream is defined', fetchPackageDistFileNoUpstream);
       it('should return 404 if the repo doesn\'t exist', fetchPackageDistFileNonexistingRepo);
+    });
+
+    describe('Search for package', () => {
+      it('should not work if no upstream is defined', searchPackageNoUpstream);
     });
   });
 });

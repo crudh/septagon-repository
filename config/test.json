@@ -4,6 +4,9 @@
       "main": {
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/testRepository"
+      },
+      "standalone": {
+        "storage": "./tmp/standaloneRepository"
       }
     },
     "log": {
