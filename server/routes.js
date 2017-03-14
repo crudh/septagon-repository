@@ -11,9 +11,9 @@ const unhandledUrl = (req, res) => {
 const routes = (app, api) => {
   app.get('/npm/-/ping', api.npm.registry.ping);
   app.get('/npm/:repo', validate(api.npm.registry.fetchRegistryInfo));
+  app.get('/npm/:repo/-/all*', validate(api.npm.packages.searchPackage));
   app.get('/npm/:repo/:name/:version?', validate(api.npm.packages.fetchPackage));
   app.get('/npm/:repo/:name/-/:distFile', validate(api.npm.packages.fetchDistFile));
-  app.get('/npm/:repo/-/all*', validate(api.npm.packages.searchPackage));
   app.get('/npm/*', unhandledUrl);
 };
 
