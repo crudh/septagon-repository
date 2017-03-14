@@ -42,9 +42,14 @@ const fetchPackage = (req, res) => {
 };
 
 const searchPackage = (req, res) => {
-  const repo = req.params.repo;
+  const repoName = req.params.repo;
+  const repo = reposConfig[repoName];
 
-  req.pipe(request(reposConfig[repo].upstream + req.url)).pipe(res);
+  if (!repo.upstream) {
+    return handleError(res, { statusCode: 404 });
+  }
+
+  return req.pipe(request(repo.upstream + req.url)).pipe(res);
 };
 
 module.exports = {

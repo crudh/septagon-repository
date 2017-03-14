@@ -51,6 +51,7 @@ const getPackage = (repo, name, version, callback) => {
 
   return checkPackageFile(repo, name, version, errFile => {
     if (!errFile) return streamPackage(repo, filePath, callback);
+    if (!repo.upstream) return callback({ statusCode: 404 });
 
     const req = request(getUpstreamUrl(repo, name, version));
     req.pause();

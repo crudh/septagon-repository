@@ -18,6 +18,7 @@ const getDistFile = (repo, name, distFile, callback) => {
 
   return checkDistFile(repo, name, distFile, errFile => {
     if (!errFile) return streamDistFile(repo, name, distFile, callback);
+    if (!repo.upstream) return callback({ statusCode: 404 });
 
     const req = request(`${repo.upstream}/${name}/-/${distFile}`);
     req.pause();
