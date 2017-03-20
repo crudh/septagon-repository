@@ -18,28 +18,26 @@
     "node": ">=7.0.0"
   },
   "dependencies": {
-    "body-parser": "1.16.1",
+    "body-parser": "1.17.1",
     "config": "1.25.1",
-    "cross-env": "3.1.4",
+    "cross-env": "3.2.4",
     "event-stream": "3.3.4",
-    "express": "4.14.1",
+    "express": "4.15.2",
     "isomorphic-fetch": "2.2.1",
     "lodash": "4.17.4",
     "mkdirp": "0.5.1",
-    "request": "2.79.0",
+    "request": "2.81.0",
     "winston": "2.3.1"
   },
   "devDependencies": {
     "chai": "3.5.0",
-    "eslint": "3.16.0",
+    "eslint": "3.18.0",
     "eslint-config-airbnb": "14.1.0",
     "eslint-plugin-import": "2.2.0",
-    "eslint-plugin-jsx-a11y": "4.0.0",
-    "eslint-plugin-react": "6.10.0",
     "mocha": "3.2.0",
     "nodemon": "1.11.0",
-    "npm-run-all": "4.0.1",
-    "rimraf": "2.6.0",
+    "npm-run-all": "4.0.2",
+    "rimraf": "2.6.1",
     "supertest": "3.0.0"
   },
   "repository": {
