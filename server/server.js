@@ -53,7 +53,7 @@ app.get('*', (req, res) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.listen(port, host, err => {
+const server = app.listen(port, host, err => {
   if (err) {
     logger.error('Error in the web application', err);
     return;
@@ -63,5 +63,6 @@ app.listen(port, host, err => {
 });
 
 module.exports = {
-  app
+  app,
+  server
 };
