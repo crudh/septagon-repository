@@ -1,5 +1,5 @@
 # septagon-repository
-A simple Node.js based npm repository manager.
+A simple Node.js based npm repository manager and proxy.
 
 ## Run in production mode
  * `npm install`
