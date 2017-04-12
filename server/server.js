@@ -6,8 +6,6 @@ const mkdirp = require('mkdirp');
 const logger = require('winston');
 const path = require('path');
 const routes = require('./routes');
-const npmPackagesAPI = require('./npm/api/packages_api');
-const npmRegistryAPI = require('./npm/api/registry_api');
 
 const serverConfig = config.get('server');
 
@@ -39,12 +37,7 @@ app.set('env', env);
 
 app.use(express.static('./public'));
 
-routes(app, {
-  npm: {
-    packages: npmPackagesAPI,
-    registry: npmRegistryAPI
-  }
-});
+routes(app);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/../public/index.html'));
