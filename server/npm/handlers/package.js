@@ -3,23 +3,24 @@ const es = require('event-stream');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const request = require('request');
-const stream = require('stream');
+const { Transform } = require('stream');
 const logger = require('winston');
 const { getServerUrl } = require('../../utils/urls');
 
 const serverConfig = config.get('server');
 
-class TarballReplacer extends stream.Transform {
+class TarballReplacer extends Transform {
   constructor(repo) {
     super({ objectMode: true });
 
     const upstreamHost = repo.upstream.replace(/https?:\/\//, '');
     this.upstreamRegExp = new RegExp(`https?://${upstreamHost}`, 'g');
+    this.repoId = repo.id;
   }
 
   _transform(line, encoding, done) {
     this.push(line.replace(this.upstreamRegExp,
-      `${getServerUrl(serverConfig.location)}/npm/main`));
+      `${getServerUrl(serverConfig.location)}/npm/${this.repoId}`));
 
     done();
   }
