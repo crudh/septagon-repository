@@ -1,7 +1,5 @@
-/* eslint import/no-extraneous-dependencies: "off" */
-const { expect } = require('chai');
 const request = require('supertest');
-const { app } = require('../server');
+const { app, server } = require('../server');
 
 describe('Registry', () => {
   describe('API', () => {
@@ -12,8 +10,8 @@ describe('Registry', () => {
           .expect(200)
           .end((err, res) => {
             if (err) return done(err);
-            expect(err).to.equal(null);
-            expect(res.body.registry_name).to.equal('main');
+            expect(err).toEqual(null);
+            expect(res.body.registry_name).toEqual('main');
             return done();
           });
       });
@@ -33,10 +31,12 @@ describe('Registry', () => {
           .expect(200)
           .end(err => {
             if (err) return done(err);
-            expect(err).to.equal(null);
+            expect(err).toEqual(null);
             return done();
           });
       });
     });
   });
 });
+
+afterAll(() => server.close());

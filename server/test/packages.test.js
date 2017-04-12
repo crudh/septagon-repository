@@ -1,8 +1,6 @@
-/* eslint import/no-extraneous-dependencies: "off" */
 const config = require('config');
-const { expect, assert } = require('chai');
 const request = require('supertest');
-const { app } = require('../server');
+const { app, server } = require('../server');
 const { getServerUrl } = require('../utils/urls');
 
 const serverConfig = config.get('server');
@@ -28,16 +26,16 @@ const fetchMainPackageFile = done => {
       if (err) return done(err);
 
       const { name, versions } = res.body;
-      expect(name).to.equal('seamless-immutable-mergers');
-      expect(versions).to.be.an('object');
+      expect(name).toEqual('seamless-immutable-mergers');
+      expect(versions).toEqual(expect.any(Object));
 
       Object.keys(versions).forEach(key => {
         const version = versions[key];
-        expect(version.dist).to.be.an('object');
+        expect(version.dist).toEqual(expect.any(Object));
 
         const { tarball } = version.dist;
-        expect(tarball).to.be.a('string');
-        assert(tarball.search(localUrlRegex) === 0, 'tarball url should point to local repository');
+        expect(tarball).toEqual(expect.any(String));
+        expect(tarball).toMatch(localUrlRegex);
       });
 
       return done();
@@ -67,13 +65,13 @@ const fetchVersionedPackageFile = done => {
       if (err) return done(err);
 
       const { name, version, dist } = res.body;
-      expect(name).to.equal('seamless-immutable-mergers');
-      expect(version).to.equal('5.0.0');
-      expect(dist).to.be.an('object');
+      expect(name).toEqual('seamless-immutable-mergers');
+      expect(version).toEqual('5.0.0');
+      expect(dist).toEqual(expect.any(Object));
 
       const { tarball } = dist;
-      expect(tarball).to.be.a('string');
-      assert(tarball.search(localUrlRegex) === 0, 'tarball url should point to local repository');
+      expect(tarball).toEqual(expect.any(String));
+      expect(tarball).toMatch(localUrlRegex);
 
       return done();
     });
@@ -102,7 +100,7 @@ const fetchPackageDistFile = done => {
     .end((err, res) => {
       if (err) return done(err);
 
-      assert.ok(Buffer.isBuffer(res.body));
+      expect(Buffer.isBuffer(res.body)).toEqual(true);
 
       return done();
     });
@@ -157,3 +155,5 @@ describe('Packages', () => {
     });
   });
 });
+
+afterAll(() => server.close());
