@@ -7,6 +7,7 @@
     },
     "repos": {
       "main": {
+        "id": "main",
         "upstream": "https://registry.npmjs.org",
         "storage": "./repository"
       }

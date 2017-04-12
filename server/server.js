@@ -1,4 +1,4 @@
-const _forEach = require('lodash/fp/forEach');
+const _toPairs = require('lodash/fp/toPairs');
 const bodyParser = require('body-parser');
 const config = require('config');
 const express = require('express');
@@ -23,14 +23,21 @@ if (serverConfig.log.file) {
   logger.add(logger.transports.File, serverConfig.log.file);
 }
 
-_forEach(repo => {
+_toPairs(serverConfig.repos).forEach(pair => {
+  const [repoId, repo] = pair;
+
+  if (repoId !== repo.id) {
+    logger.error(`Repository config for ${repoId} has a missing or mismatching id (id should match the key)`);
+    process.exit(1);
+  }
+
   mkdirp(repo.storage, err => {
     if (!err) return;
 
     logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
     process.exit(1);
   });
-}, serverConfig.repos);
+});
 
 const app = express();
 app.set('env', env);

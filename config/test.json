@@ -2,10 +2,12 @@
   "server": {
     "repos": {
       "main": {
+        "id": "main",
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/testRepository"
       },
       "standalone": {
+        "id": "standalone",
         "storage": "./tmp/standaloneRepository"
       }
     },
