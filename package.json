@@ -10,6 +10,7 @@
     "start": "cross-env NODE_ENV=production node server/server.js",
     "dev": "cross-env NODE_ENV=development nodemon --watch server server/server.js",
     "lint": "eslint server",
+    "lint:fix": "eslint --fix server",
     "test": "npm-run-all test:clean test:server",
     "test:server": "cross-env NODE_ENV=test jest",
     "test:clean": "rimraf ./tmp/testRepository"
@@ -31,11 +32,12 @@
   },
   "devDependencies": {
     "eslint": "3.19.0",
-    "eslint-config-airbnb-base": "11.1.3",
-    "eslint-plugin-import": "2.2.0",
+    "eslint-config-prettier": "1.7.0",
+    "eslint-plugin-prettier": "2.0.1",
     "jest": "19.0.2",
     "nodemon": "1.11.0",
     "npm-run-all": "4.0.2",
+    "prettier": "1.2.2",
     "rimraf": "2.6.1",
     "supertest": "3.0.0"
   },

@@ -1,16 +1,19 @@
 {
-  "extends": "airbnb-base",
+  "plugins": [
+    "prettier"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  parserOptions: {
+    ecmaVersion: 2016
+  },
   "env": {
     "node": true,
     "jest": true
   },
   "rules": {
-    "arrow-parens": [2, "as-needed"],
-    "comma-dangle": [2, "never"],
-    "no-confusing-arrow": 0,
-    "no-console": 0,
-    "no-underscore-dangle": 0,
-
-    "import/prefer-default-export": 0,
+    "prettier/prettier": ["error", { "printWidth": 120 }]
   }
 }
