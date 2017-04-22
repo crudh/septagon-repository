@@ -1,17 +1,17 @@
-const _toPairs = require('lodash/fp/toPairs');
-const bodyParser = require('body-parser');
-const config = require('config');
-const express = require('express');
-const mkdirp = require('mkdirp');
-const logger = require('winston');
-const path = require('path');
-const routes = require('./routes');
+const _toPairs = require("lodash/fp/toPairs");
+const bodyParser = require("body-parser");
+const config = require("config");
+const express = require("express");
+const mkdirp = require("mkdirp");
+const logger = require("winston");
+const path = require("path");
+const routes = require("./routes");
 
-const serverConfig = config.get('server');
+const serverConfig = config.get("server");
 
 const host = serverConfig.location.host;
 const port = serverConfig.location.port;
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || "development";
 
 logger.remove(logger.transports.Console);
 
@@ -40,14 +40,14 @@ _toPairs(serverConfig.repos).forEach(pair => {
 });
 
 const app = express();
-app.set('env', env);
+app.set("env", env);
 
-app.use(express.static('./public'));
+app.use(express.static("./public"));
 
 routes(app);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '/../public/index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "/../public/index.html"));
 });
 
 app.use(bodyParser.json());
@@ -55,7 +55,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const server = app.listen(port, host, err => {
   if (err) {
-    logger.error('Error in the web application', err);
+    logger.error("Error in the web application", err);
     return;
   }
 

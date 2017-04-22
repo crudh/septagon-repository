@@ -1,6 +1,4 @@
-const getServerUrl = location => (
-  `${location.protocol}://${location.host}:${location.port}`
-);
+const getServerUrl = location => `${location.protocol}://${location.host}:${location.port}`;
 
 module.exports = {
   getServerUrl

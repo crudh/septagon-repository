@@ -1,12 +1,12 @@
 const fetchRegistryInfo = (req, res) => {
   const repo = req.params.repo;
 
-  res.set('Content-Type', 'application/json');
+  res.set("Content-Type", "application/json");
   res.send({ registry_name: repo });
 };
 
 const ping = (req, res) => {
-  res.set('Content-Type', 'application/json');
+  res.set("Content-Type", "application/json");
   res.send({});
 };
 
