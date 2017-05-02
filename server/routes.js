@@ -12,10 +12,10 @@ const unhandledUrl = (req, res) => {
 
 const routes = app => {
   app.get("/npm/-/ping", npmRegistryAPI.ping);
-  app.get("/npm/:repo", validate(npmRegistryAPI.fetchRegistryInfo));
+  app.get("/npm/:repo", validate(npmRegistryAPI.getRegistryInfo));
   app.get("/npm/:repo/-/all*", validate(npmPackagesAPI.searchPackage));
-  app.get("/npm/:repo/:name/:version?", validate(npmPackagesAPI.fetchPackage));
-  app.get("/npm/:repo/:name/-/:distFile", validate(npmPackagesAPI.fetchDistFile));
+  app.get("/npm/:repo/:name/:version?", validate(npmPackagesAPI.getPackage));
+  app.get("/npm/:repo/:name/-/:distFile", validate(npmPackagesAPI.getDistFile));
   app.get("/npm/*", unhandledUrl);
 };
 

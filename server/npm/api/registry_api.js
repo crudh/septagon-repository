@@ -1,4 +1,4 @@
-const fetchRegistryInfo = (req, res) => {
+const getRegistryInfo = (req, res) => {
   const repo = req.params.repo;
 
   res.set("Content-Type", "application/json");
@@ -11,6 +11,6 @@ const ping = (req, res) => {
 };
 
 module.exports = {
-  fetchRegistryInfo,
+  getRegistryInfo,
   ping
 };

@@ -2,18 +2,18 @@ const config = require("config");
 const request = require("request");
 const logger = require("winston");
 const { handleError } = require("../../common/api/common_api");
-const { getDistFile } = require("../handlers/distfile");
-const { getPackage } = require("../handlers/package");
+const distFileHandler = require("../handlers/distfile");
+const packageHandler = require("../handlers/package");
 
 const reposConfig = config.get("server.repos");
 
-const fetchDistFile = (req, res) => {
+const getDistFile = (req, res) => {
   const repo = req.params.repo;
   const name = req.params.name;
   const distFile = req.params.distFile;
   logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`);
 
-  getDistFile(reposConfig[repo], name, distFile, (err, stream) => {
+  distFileHandler.getDistFile(reposConfig[repo], name, distFile, (err, stream) => {
     if (err) {
       logger.error(`Error when fetching distfile ${distFile} for package ${name}`, err);
       return handleError(res, err);
@@ -24,13 +24,13 @@ const fetchDistFile = (req, res) => {
   });
 };
 
-const fetchPackage = (req, res) => {
+const getPackage = (req, res) => {
   const repo = req.params.repo;
   const name = req.params.name;
   const version = req.params.version;
   logger.info(`Fetching package ${name}@${version || ""} (${req.originalUrl})`);
 
-  getPackage(reposConfig[repo], name, version, (err, stream) => {
+  packageHandler.getPackage(reposConfig[repo], name, version, (err, stream) => {
     if (err) {
       logger.error(`Error when fetching package ${name}@${version || ""}`, err);
       return handleError(res, err);
@@ -53,7 +53,7 @@ const searchPackage = (req, res) => {
 };
 
 module.exports = {
-  fetchDistFile,
-  fetchPackage,
+  getDistFile,
+  getPackage,
   searchPackage
 };
