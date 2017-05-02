@@ -24,15 +24,31 @@ const getDistFile = (req, res) => {
   });
 };
 
-const getPackage = (req, res) => {
+const getMainPackage = (req, res) => {
+  const repo = req.params.repo;
+  const name = req.params.name;
+  logger.info(`Fetching package ${name} (${req.originalUrl})`);
+
+  packageHandler.getMainPackage(reposConfig[repo], name, (err, stream) => {
+    if (err) {
+      logger.error(`Error when fetching package ${name}`, err);
+      return handleError(res, err);
+    }
+
+    res.set("Content-Type", "application/json");
+    return stream.pipe(res);
+  });
+};
+
+const getVersionedPackage = (req, res) => {
   const repo = req.params.repo;
   const name = req.params.name;
   const version = req.params.version;
-  logger.info(`Fetching package ${name}@${version || ""} (${req.originalUrl})`);
+  logger.info(`Fetching package ${name}@${version} (${req.originalUrl})`);
 
-  packageHandler.getPackage(reposConfig[repo], name, version, (err, stream) => {
+  packageHandler.getVersionedPackage(reposConfig[repo], name, version, (err, stream) => {
     if (err) {
-      logger.error(`Error when fetching package ${name}@${version || ""}`, err);
+      logger.error(`Error when fetching package ${name}@${version}`, err);
       return handleError(res, err);
     }
 
@@ -54,6 +70,7 @@ const searchPackage = (req, res) => {
 
 module.exports = {
   getDistFile,
-  getPackage,
+  getMainPackage,
+  getVersionedPackage,
   searchPackage
 };
