@@ -17,7 +17,7 @@ const binaryParser = (res, callback) => {
   });
 };
 
-const fetchMainPackageFile = done => {
+const getMainPackageFile = done => {
   request(app)
     .get("/npm/main/seamless-immutable-mergers")
     .expect(200)
@@ -42,15 +42,15 @@ const fetchMainPackageFile = done => {
     });
 };
 
-const fetchMainPackageFileNoUpstream = done => {
+const getMainPackageFileNoUpstream = done => {
   request(app).get("/npm/standalone/seamless-immutable-mergers").expect(404).end(done);
 };
 
-const fetchMainPackageFileNonexistingRepo = done => {
+const getMainPackageFileNonexistingRepo = done => {
   request(app).get("/npm/nonexisting/seamless-immutable-mergers").expect(404).end(done);
 };
 
-const fetchVersionedPackageFile = done => {
+const getVersionedPackageFile = done => {
   request(app)
     .get("/npm/main/seamless-immutable-mergers/5.0.0")
     .expect(200)
@@ -71,15 +71,15 @@ const fetchVersionedPackageFile = done => {
     });
 };
 
-const fetchVersionedPackageFileNoUpstream = done => {
+const getVersionedPackageFileNoUpstream = done => {
   request(app).get("/npm/standalone/seamless-immutable-mergers/5.0.0").expect(404).end(done);
 };
 
-const fetchVersionedPackageFileNonexistingRepo = done => {
+const getVersionedPackageFileNonexistingRepo = done => {
   request(app).get("/npm/nonexisting/seamless-immutable-mergers/5.0.0").expect(404).end(done);
 };
 
-const fetchPackageDistFile = done => {
+const getPackageDistFile = done => {
   request(app)
     .get("/npm/main/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz")
     .expect(200)
@@ -94,14 +94,14 @@ const fetchPackageDistFile = done => {
     });
 };
 
-const fetchPackageDistFileNonexistingRepo = done => {
+const getPackageDistFileNonexistingRepo = done => {
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz")
     .expect(404)
     .end(done);
 };
 
-const fetchPackageDistFileNoUpstream = done => {
+const getPackageDistFileNoUpstream = done => {
   request(app)
     .get("/npm/standalone/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz")
     .expect(404)
@@ -114,25 +114,25 @@ const searchPackageNoUpstream = done => {
 
 describe("Packages", () => {
   describe("API", () => {
-    describe("Fetch main package file", () => {
-      it("should be able to fetch a main package file", fetchMainPackageFile);
-      it("should be able to fetch a main package file when it is cached", fetchMainPackageFile);
-      it("should return 404 if not stored locally and no upstream is defined", fetchMainPackageFileNoUpstream);
-      it("should return 404 if the repo doesn't exist", fetchMainPackageFileNonexistingRepo);
+    describe("Get main package file", () => {
+      it("should be able to get a main package file", getMainPackageFile);
+      it("should be able to get a main package file when it is cached", getMainPackageFile);
+      it("should return 404 if not stored locally and no upstream is defined", getMainPackageFileNoUpstream);
+      it("should return 404 if the repo doesn't exist", getMainPackageFileNonexistingRepo);
     });
 
-    describe("Fetch versioned package file", () => {
-      it("should be able to fetch a package file by version", fetchVersionedPackageFile);
-      it("should be able to fetch a package file by version when it is cached", fetchVersionedPackageFile);
-      it("should return 404 if not stored locally and no upstream is defined", fetchVersionedPackageFileNoUpstream);
-      it("should return 404 if the repo doesn't exist", fetchVersionedPackageFileNonexistingRepo);
+    describe("Get versioned package file", () => {
+      it("should be able to get a package file by version", getVersionedPackageFile);
+      it("should be able to get a package file by version when it is cached", getVersionedPackageFile);
+      it("should return 404 if not stored locally and no upstream is defined", getVersionedPackageFileNoUpstream);
+      it("should return 404 if the repo doesn't exist", getVersionedPackageFileNonexistingRepo);
     });
 
-    describe("Fetch package dist file", () => {
-      it("should be able to fetch a package distfile", fetchPackageDistFile);
-      it("should be able to fetch a package distfile when it is cached", fetchPackageDistFile);
-      it("should return 404 if not stored locally and no upstream is defined", fetchPackageDistFileNoUpstream);
-      it("should return 404 if the repo doesn't exist", fetchPackageDistFileNonexistingRepo);
+    describe("Get package dist file", () => {
+      it("should be able to get a package distfile", getPackageDistFile);
+      it("should be able to get a package distfile when it is cached", getPackageDistFile);
+      it("should return 404 if not stored locally and no upstream is defined", getPackageDistFileNoUpstream);
+      it("should return 404 if the repo doesn't exist", getPackageDistFileNonexistingRepo);
     });
 
     describe("Search for package", () => {

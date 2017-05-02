@@ -3,7 +3,7 @@ const { app, server } = require("../server");
 
 describe("Registry", () => {
   describe("API", () => {
-    describe("Fetch registry info", () => {
+    describe("Get registry info", () => {
       it("should give back basic info on success", done => {
         request(app).get("/npm/main").expect(200).end((err, res) => {
           if (err) return done(err);
