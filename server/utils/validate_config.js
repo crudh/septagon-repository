@@ -9,25 +9,18 @@ const isAny = (...options) => (key, config) =>
 const hasChild = () => (key, config) =>
   (_keys(_get(key, config)).length > 0 ? "" : `${key}: should have at least one child`);
 
-const runChecks = (state, config, checks) =>
-  checks.reduce(
-    (checksState, [key, ...ops]) => [...checksState, ...ops.map(op => op(key, config)).filter(_ => _)],
-    state
+const runChecks = (config, ...checks) =>
+  checks.reduce((checksState, [key, ...ops]) => [...checksState, ...ops.map(op => op(key, config)).filter(_ => _)], []);
+
+const validateServerConfig = config =>
+  runChecks(
+    config,
+    ["location", isSet()],
+    ["location.protocol", isSet(), isAny("http", "https")],
+    ["location.host", isSet()],
+    ["location.port", isSet()],
+    ["repos", isSet(), hasChild()]
   );
-
-const locationValidation = () => [
-  ["location", isSet()],
-  ["location.protocol", isSet(), isAny("http", "https")],
-  ["location.host", isSet()],
-  ["location.port", isSet()]
-];
-
-const reposValidation = () => [["repos", isSet(), hasChild()]];
-
-const runValidations = (config, ...validations) =>
-  validations.reduce((state, validation) => runChecks(state, config, validation()), []);
-
-const validateServerConfig = config => runValidations(config, locationValidation, reposValidation);
 
 module.exports = {
   validateServerConfig
