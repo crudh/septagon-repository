@@ -6,10 +6,10 @@ const isAny = (...options) => (key, config) =>
   (options.includes(_get(key, config)) ? "" : `${key}: should be any of [${options}]`);
 
 const runChecks = (state, config, ...checks) =>
-  checks.reduce((checksState, check) => {
-    const [key, ...ops] = check;
-    return [...checksState, ...ops.map(op => op(key, config)).filter(_ => _)];
-  }, state);
+  checks.reduce(
+    (checksState, [key, ...ops]) => [...checksState, ...ops.map(op => op(key, config)).filter(_ => _)],
+    state
+  );
 
 const validateLocation = (state, config) =>
   runChecks(
@@ -23,9 +23,8 @@ const validateLocation = (state, config) =>
 
 const validateRepos = (state, config) => runChecks(state, config, ["repos", isSet()]);
 
-const validateServerConfig = config => {
-  return [validateLocation, validateRepos].reduce((state, validationFunc) => validationFunc(state, config), []);
-};
+const validateServerConfig = config =>
+  [validateLocation, validateRepos].reduce((state, validationFunc) => validationFunc(state, config), []);
 
 module.exports = {
   validateServerConfig
