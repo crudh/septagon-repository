@@ -10,11 +10,21 @@ const isSet = () => (key, config) => (_get(key, config) ? "" : `${key}: should b
 const isAny = (...options) => (key, config) =>
   (options.includes(_get(key, config)) ? "" : `${key}: should be any of [${options}]`);
 
+const isEqual = value => (key, config) => (_get(key, config) === value ? "" : `${key}: should match ${value}`);
+
 const hasChild = () => (key, config) =>
   (_keys(_get(key, config)).length > 0 ? "" : `${key}: should have at least one child`);
 
 const runChecks = (config, ...checks) =>
   checks.reduce((checksState, [key, ...ops]) => [...checksState, ...ops.map(op => op(key, config)).filter(_ => _)], []);
+
+const createChildrenChecks = (config, parentKey, checkFunc) =>
+  _flow(
+    _getOr({}, parentKey),
+    _keys,
+    _map(childKey => checkFunc(`${parentKey}.${childKey}`, childKey, parentKey)),
+    _flatten
+  )(config);
 
 const validateServerConfig = config =>
   runChecks(
@@ -24,7 +34,10 @@ const validateServerConfig = config =>
     ["location.host", isSet()],
     ["location.port", isSet()],
     ["repos", isSet(), hasChild()],
-    ..._flow(_getOr({}, "repos"), _keys, _map(repo => [[`repos.${repo}.id`, isSet()]]), _flatten)(config)
+    ...createChildrenChecks(config, "repos", (key, childKey) => [
+      [`${key}.id`, isSet(), isEqual(childKey)],
+      [`${key}.storage`, isSet()]
+    ])
   );
 
 module.exports = {
