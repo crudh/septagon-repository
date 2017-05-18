@@ -1,5 +1,9 @@
+const _flatten = require("lodash/fp/flatten");
+const _flow = require("lodash/fp/flow");
 const _get = require("lodash/fp/get");
+const _getOr = require("lodash/fp/getOr");
 const _keys = require("lodash/fp/keys");
+const _map = require("lodash/fp/map");
 
 const isSet = () => (key, config) => (_get(key, config) ? "" : `${key}: should be set`);
 
@@ -19,7 +23,8 @@ const validateServerConfig = config =>
     ["location.protocol", isSet(), isAny("http", "https")],
     ["location.host", isSet()],
     ["location.port", isSet()],
-    ["repos", isSet(), hasChild()]
+    ["repos", isSet(), hasChild()],
+    ..._flow(_getOr({}, "repos"), _keys, _map(repo => [[`repos.${repo}.id`, isSet()]]), _flatten)(config)
   );
 
 module.exports = {
