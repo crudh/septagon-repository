@@ -36,7 +36,7 @@ const createChildrenChecks = (config, parentKey, checkFunc) =>
 const validateServerConfig = config =>
   runChecks(
     config,
-    ["location", isSet()],
+    ["location", isSet(), isObject()],
     ["location.protocol", isSet(), isAny("http", "https")],
     ["location.host", isSet()],
     ["location.port", isSet(), isNumber()],
