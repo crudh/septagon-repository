@@ -1,7 +1,25 @@
-const config = require("config");
 const { validateServerConfig } = require("../../utils/validate_config");
 
-const serverConfig = config.get("server");
+const defaultConfig = {
+  server: {
+    location: {
+      protocol: "http",
+      host: "localhost",
+      port: "3000"
+    },
+    repos: {
+      main: {
+        id: "main",
+        upstream: "https://registry.npmjs.org",
+        storage: "./tmp/testRepository"
+      },
+      standalone: {
+        id: "standalone",
+        storage: "./tmp/standaloneRepository"
+      }
+    }
+  }
+};
 
 describe("Validate config", () => {
   describe("Server config", () => {
@@ -10,7 +28,7 @@ describe("Validate config", () => {
     });
 
     it("should validate a correct file without errors", () => {
-      expect(validateServerConfig(serverConfig).length).toEqual(0);
+      expect(validateServerConfig(defaultConfig.server).length).toEqual(0);
     });
   });
 });
