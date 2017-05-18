@@ -13,15 +13,23 @@ const getDistFile = (req, res) => {
   const distFile = req.params.distFile;
   logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`);
 
-  distFileHandler.getDistFile(reposConfig[repo], name, distFile, (err, stream) => {
-    if (err) {
-      logger.error(`Error when fetching distfile ${distFile} for package ${name}`, err);
-      return handleError(res, err);
-    }
+  distFileHandler.getDistFile(
+    reposConfig[repo],
+    name,
+    distFile,
+    (err, stream) => {
+      if (err) {
+        logger.error(
+          `Error when fetching distfile ${distFile} for package ${name}`,
+          err
+        );
+        return handleError(res, err);
+      }
 
-    res.set("Content-Type", "application/octet-stream");
-    return stream.pipe(res);
-  });
+      res.set("Content-Type", "application/octet-stream");
+      return stream.pipe(res);
+    }
+  );
 };
 
 const getMainPackage = (req, res) => {
@@ -46,15 +54,20 @@ const getVersionedPackage = (req, res) => {
   const version = req.params.version;
   logger.info(`Fetching package ${name}@${version} (${req.originalUrl})`);
 
-  packageHandler.getVersionedPackage(reposConfig[repo], name, version, (err, stream) => {
-    if (err) {
-      logger.error(`Error when fetching package ${name}@${version}`, err);
-      return handleError(res, err);
-    }
+  packageHandler.getVersionedPackage(
+    reposConfig[repo],
+    name,
+    version,
+    (err, stream) => {
+      if (err) {
+        logger.error(`Error when fetching package ${name}@${version}`, err);
+        return handleError(res, err);
+      }
 
-    res.set("Content-Type", "application/json");
-    return stream.pipe(res);
-  });
+      res.set("Content-Type", "application/json");
+      return stream.pipe(res);
+    }
+  );
 };
 
 const searchPackage = (req, res) => {

@@ -35,7 +35,10 @@ _forEach(repo => {
   mkdirp(repo.storage, err => {
     if (!err) return;
 
-    logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
+    logger.error(
+      `Error when creating the storage directory (${serverConfig.storage})`,
+      err
+    );
     process.exit(1);
   });
 }, serverConfig.repos);

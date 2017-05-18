@@ -19,7 +19,12 @@ class TarballReplacer extends Transform {
   }
 
   _transform(line, encoding, done) {
-    this.push(line.replace(this.upstreamRegExp, `${getServerUrl(serverConfig.location)}/npm/${this.repoId}`));
+    this.push(
+      line.replace(
+        this.upstreamRegExp,
+        `${getServerUrl(serverConfig.location)}/npm/${this.repoId}`
+      )
+    );
 
     done();
   }
@@ -40,7 +45,10 @@ const checkPackageFile = (repo, name, version, callback) => {
 };
 
 const streamPackage = (repo, path, callback) => {
-  const readStream = fs.createReadStream(path).pipe(es.split()).pipe(new TarballReplacer(repo));
+  const readStream = fs
+    .createReadStream(path)
+    .pipe(es.split())
+    .pipe(new TarballReplacer(repo));
   callback(null, readStream);
 };
 
@@ -51,7 +59,9 @@ const getMainPackage = (repo, name, callback) => {
 
   if (!repo.upstream) {
     return checkPackageFile(repo, name, null, errFile => {
-      return errFile ? callback({ statusCode: 404 }) : streamPackage(repo, filePath, callback);
+      return errFile
+        ? callback({ statusCode: 404 })
+        : streamPackage(repo, filePath, callback);
     });
   }
 
@@ -60,17 +70,23 @@ const getMainPackage = (repo, name, callback) => {
 
   return req
     .on("error", errRequest => {
-      logger.error(`Network error when fetching package ${name} from upstream, checking local cache`);
+      logger.error(
+        `Network error when fetching package ${name} from upstream, checking local cache`
+      );
 
       return checkPackageFile(repo, name, null, errFile => {
-        return errFile ? callback(errRequest) : streamPackage(repo, filePath, callback);
+        return errFile
+          ? callback(errRequest)
+          : streamPackage(repo, filePath, callback);
       });
     })
     .on("response", response => {
       const statusCode = response.statusCode;
 
       if (statusCode < 200 || statusCode >= 300) {
-        const error = new Error(`Got ${statusCode} when fetching package from upstream`);
+        const error = new Error(
+          `Got ${statusCode} when fetching package from upstream`
+        );
         error.statusCode = statusCode;
         return callback(error);
       }
@@ -107,14 +123,18 @@ const getVersionedPackage = (repo, name, version, callback) => {
 
     return req
       .on("error", errRequest => {
-        logger.error(`Network error when fetching package ${name}@${version} from upstream`);
+        logger.error(
+          `Network error when fetching package ${name}@${version} from upstream`
+        );
         callback(errRequest);
       })
       .on("response", response => {
         const statusCode = response.statusCode;
 
         if (statusCode < 200 || statusCode >= 300) {
-          const error = new Error(`Got ${statusCode} when fetching package from upstream`);
+          const error = new Error(
+            `Got ${statusCode} when fetching package from upstream`
+          );
           error.statusCode = statusCode;
           return callback(error);
         }
@@ -126,7 +146,9 @@ const getVersionedPackage = (repo, name, version, callback) => {
             fs
               .createWriteStream(filePath)
               .on("error", errWrite => {
-                logger.error(`Error when writing package ${name}@${version} to storage`);
+                logger.error(
+                  `Error when writing package ${name}@${version} to storage`
+                );
                 callback(errWrite);
               })
               .on("finish", () => streamPackage(repo, filePath, callback))

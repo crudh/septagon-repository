@@ -1,5 +1,8 @@
 const logger = require("winston");
-const { createValidation, validatorRepository } = require("./common/api/common_api");
+const {
+  createValidation,
+  validatorRepository
+} = require("./common/api/common_api");
 const npmPackagesAPI = require("./npm/api/packages_api");
 const npmRegistryAPI = require("./npm/api/registry_api");
 
@@ -15,7 +18,10 @@ const routes = app => {
   app.get("/npm/:repo", validate(npmRegistryAPI.getRegistryInfo));
   app.get("/npm/:repo/-/all*", validate(npmPackagesAPI.searchPackage));
   app.get("/npm/:repo/:name", validate(npmPackagesAPI.getMainPackage));
-  app.get("/npm/:repo/:name/:version", validate(npmPackagesAPI.getVersionedPackage));
+  app.get(
+    "/npm/:repo/:name/:version",
+    validate(npmPackagesAPI.getVersionedPackage)
+  );
   app.get("/npm/:repo/:name/-/:distFile", validate(npmPackagesAPI.getDistFile));
   app.get("/npm/*", unhandledUrl);
 };
