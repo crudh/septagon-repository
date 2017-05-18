@@ -1,4 +1,5 @@
-const _toPairs = require("lodash/fp/toPairs");
+/* eslint no-console: "off" */
+const _forEach = require("lodash/fp/forEach");
 const bodyParser = require("body-parser");
 const config = require("config");
 const express = require("express");
@@ -6,8 +7,15 @@ const mkdirp = require("mkdirp");
 const logger = require("winston");
 const path = require("path");
 const routes = require("./routes");
+const { validateServerConfig } = require("./utils/validate_config");
 
 const serverConfig = config.get("server");
+const configErrors = validateServerConfig(serverConfig);
+if (configErrors.length > 0) {
+  console.error("There are configuration errors, the server will shut down:");
+  console.error(configErrors);
+  process.exit(1);
+}
 
 const host = serverConfig.location.host;
 const port = serverConfig.location.port;
@@ -23,21 +31,14 @@ if (serverConfig.log.file) {
   logger.add(logger.transports.File, serverConfig.log.file);
 }
 
-_toPairs(serverConfig.repos).forEach(pair => {
-  const [repoId, repo] = pair;
-
-  if (repoId !== repo.id) {
-    logger.error(`Repository config for ${repoId} has a missing or mismatching id (id should match the key)`);
-    process.exit(1);
-  }
-
+_forEach(repo => {
   mkdirp(repo.storage, err => {
     if (!err) return;
 
     logger.error(`Error when creating the storage directory (${serverConfig.storage})`, err);
     process.exit(1);
   });
-});
+}, serverConfig.repos);
 
 const app = express();
 app.set("env", env);
