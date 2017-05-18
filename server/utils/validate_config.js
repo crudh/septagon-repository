@@ -2,6 +2,7 @@ const _flatten = require("lodash/fp/flatten");
 const _flow = require("lodash/fp/flow");
 const _get = require("lodash/fp/get");
 const _getOr = require("lodash/fp/getOr");
+const _isPlainObject = require("lodash/fp/isPlainObject");
 const _keys = require("lodash/fp/keys");
 const _map = require("lodash/fp/map");
 
@@ -11,6 +12,8 @@ const isAny = (...options) => (key, config) =>
   (options.includes(_get(key, config)) ? "" : `${key}: should be any of [${options}]`);
 
 const isEqual = value => (key, config) => (_get(key, config) === value ? "" : `${key}: should match ${value}`);
+
+const isObject = () => (key, config) => (_isPlainObject(_get(key, config)) ? "" : `${key}: should be an object`);
 
 const hasChild = () => (key, config) =>
   (_keys(_get(key, config)).length > 0 ? "" : `${key}: should have at least one child`);
@@ -33,7 +36,7 @@ const validateServerConfig = config =>
     ["location.protocol", isSet(), isAny("http", "https")],
     ["location.host", isSet()],
     ["location.port", isSet()],
-    ["repos", isSet(), hasChild()],
+    ["repos", isSet(), isObject(), hasChild()],
     ...createChildrenChecks(config, "repos", (key, childKey) => [
       [`${key}.id`, isSet(), isEqual(childKey)],
       [`${key}.storage`, isSet()]
