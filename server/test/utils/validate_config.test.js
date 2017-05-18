@@ -24,7 +24,7 @@ const defaultConfig = {
 describe("Validate config", () => {
   describe("Server config", () => {
     it("should validate an empty config with all errors", () => {
-      expect(validateServerConfig({}).length).toEqual(8);
+      expect(validateServerConfig({}).length).toEqual(9);
     });
 
     it("should validate a correct file without errors", () => {
