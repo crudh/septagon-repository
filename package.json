@@ -16,7 +16,7 @@
     "test:clean": "rimraf ./tmp/testRepository"
   },
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=8.0.0"
   },
   "dependencies": {
     "body-parser": "1.17.2",
