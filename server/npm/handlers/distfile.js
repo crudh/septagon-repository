@@ -10,9 +10,8 @@ const streamDistFile = (repo, name, distFile, callback) => {
   callback(null, readStream);
 };
 
-const checkDistFile = (repo, name, distFile, callback) => {
+const checkDistFile = (repo, name, distFile, callback) =>
   fs.stat(`${repo.storage}/${name}/-/${distFile}`, err => callback(err));
-};
 
 const getDistFile = (repo, name, distFile, callback) => {
   const directoryPath = `${repo.storage}/${name}/-`;
