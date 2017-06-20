@@ -18,6 +18,9 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "body-parser": "1.17.2",
     "config": "1.26.1",
