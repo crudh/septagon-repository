@@ -22,11 +22,11 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "body-parser": "1.17.2",
-    "config": "1.26.1",
-    "cross-env": "5.0.0",
+    "body-parser": "1.18.1",
+    "config": "1.26.2",
+    "cross-env": "5.0.5",
     "event-stream": "3.3.4",
-    "express": "4.15.3",
+    "express": "4.15.4",
     "isomorphic-fetch": "2.2.1",
     "lodash": "4.17.4",
     "mkdirp": "0.5.1",
@@ -34,14 +34,14 @@
     "winston": "2.3.1"
   },
   "devDependencies": {
-    "eslint": "3.19.0",
-    "eslint-config-prettier": "2.1.1",
-    "eslint-plugin-prettier": "2.1.1",
-    "jest": "20.0.4",
-    "nodemon": "1.11.0",
-    "npm-run-all": "4.0.2",
-    "prettier": "1.3.1",
-    "rimraf": "2.6.1",
+    "eslint": "4.6.1",
+    "eslint-config-prettier": "2.4.0",
+    "eslint-plugin-prettier": "2.2.0",
+    "jest": "21.1.0",
+    "nodemon": "1.12.0",
+    "npm-run-all": "4.1.1",
+    "prettier": "1.7.0",
+    "rimraf": "2.6.2",
     "supertest": "3.0.0"
   },
   "repository": {
