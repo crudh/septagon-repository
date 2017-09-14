@@ -1,9 +1,9 @@
 const { promisify } = require("util");
 const fs = require("fs");
-const mkdirp = require("mkdirp");
 const request = require("request");
 const logger = require("winston");
 
+const mkdirp = promisify(require("mkdirp"));
 const stat = promisify(fs.stat);
 
 const streamDistFile = (repo, name, distFile) =>
@@ -43,25 +43,25 @@ const getDistFile = (repo, name, distFile) =>
               return reject(error);
             }
 
-            return mkdirp(directoryPath, errDir => {
-              if (errDir) return reject(errDir);
+            return mkdirp(directoryPath)
+              .then(() => {
+                req.pipe(
+                  fs
+                    .createWriteStream(filePath)
+                    .on("error", errWrite => {
+                      logger.error(
+                        `Error when writing distfile ${distFile} for package ${name} to storage`
+                      );
+                      reject(errWrite);
+                    })
+                    .on("finish", () =>
+                      resolve(streamDistFile(repo, name, distFile))
+                    )
+                );
 
-              req.pipe(
-                fs
-                  .createWriteStream(filePath)
-                  .on("error", errWrite => {
-                    logger.error(
-                      `Error when writing distfile ${distFile} for package ${name} to storage`
-                    );
-                    reject(errWrite);
-                  })
-                  .on("finish", () =>
-                    resolve(streamDistFile(repo, name, distFile))
-                  )
-              );
-
-              return req.resume();
-            });
+                return req.resume();
+              })
+              .catch(error => reject(error));
           });
       });
   });
