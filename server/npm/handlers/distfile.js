@@ -1,6 +1,6 @@
-const { promisify } = require("util");
 const fs = require("fs");
 const request = require("request");
+const { promisify } = require("util");
 const logger = require("winston");
 
 const mkdirp = promisify(require("mkdirp"));
