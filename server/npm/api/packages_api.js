@@ -13,23 +13,19 @@ const getDistFile = (req, res) => {
   const distFile = req.params.distFile;
   logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`);
 
-  distFileHandler.getDistFile(
-    reposConfig[repo],
-    name,
-    distFile,
-    (err, stream) => {
-      if (err) {
-        logger.error(
-          `Error when fetching distfile ${distFile} for package ${name}`,
-          err
-        );
-        return handleError(res, err);
-      }
-
+  distFileHandler
+    .getDistFile(reposConfig[repo], name, distFile)
+    .then(stream => {
       res.set("Content-Type", "application/octet-stream");
       return stream.pipe(res);
-    }
-  );
+    })
+    .catch(error => {
+      logger.error(
+        `Error when fetching distfile ${distFile} for package ${name}`,
+        error
+      );
+      return handleError(res, error);
+    });
 };
 
 const getMainPackage = (req, res) => {
