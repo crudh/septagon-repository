@@ -26,11 +26,11 @@ const getDistFile = (repo, name, distFile) =>
         req.pause();
 
         return req
-          .on("error", errRequest => {
+          .on("error", error => {
             logger.error(
               `Network error when fetching distfile ${distFile} for package ${name} from upstream`
             );
-            reject(errRequest);
+            reject(error);
           })
           .on("response", response => {
             const statusCode = response.statusCode;
@@ -48,11 +48,11 @@ const getDistFile = (repo, name, distFile) =>
                 req.pipe(
                   fs
                     .createWriteStream(filePath)
-                    .on("error", errWrite => {
+                    .on("error", error => {
                       logger.error(
                         `Error when writing distfile ${distFile} for package ${name} to storage`
                       );
-                      reject(errWrite);
+                      reject(error);
                     })
                     .on("finish", () =>
                       resolve(streamDistFile(repo, name, distFile))
