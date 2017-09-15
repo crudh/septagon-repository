@@ -1,13 +1,13 @@
 const config = require("config");
 const es = require("event-stream");
 const fs = require("fs");
-const mkdirp = require("mkdirp");
 const request = require("request");
 const { Transform } = require("stream");
 const { promisify } = require("util");
 const logger = require("winston");
 const { getServerUrl } = require("../../utils/urls");
 
+const mkdirp = promisify(require("mkdirp"));
 const stat = promisify(fs.stat);
 
 const serverConfig = config.get("server");
@@ -87,21 +87,21 @@ const getMainPackage = (repo, name) =>
           return reject(error);
         }
 
-        return mkdirp(directoryPath, errDir => {
-          if (errDir) return reject(errDir);
+        return mkdirp(directoryPath)
+          .then(() => {
+            req.pipe(
+              fs
+                .createWriteStream(filePath)
+                .on("error", errWrite => {
+                  logger.error(`Error when writing package ${name} to storage`);
+                  reject(errWrite);
+                })
+                .on("finish", () => resolve(streamPackage(repo, filePath)))
+            );
 
-          req.pipe(
-            fs
-              .createWriteStream(filePath)
-              .on("error", errWrite => {
-                logger.error(`Error when writing package ${name} to storage`);
-                reject(errWrite);
-              })
-              .on("finish", () => resolve(streamPackage(repo, filePath)))
-          );
-
-          return req.resume();
-        });
+            return req.resume();
+          })
+          .catch(error => reject(error));
       });
   });
 
@@ -137,23 +137,23 @@ const getVersionedPackage = (repo, name, version) =>
               return reject(error);
             }
 
-            return mkdirp(directoryPath, errDir => {
-              if (errDir) return reject(errDir);
+            return mkdirp(directoryPath)
+              .then(() => {
+                req.pipe(
+                  fs
+                    .createWriteStream(filePath)
+                    .on("error", errWrite => {
+                      logger.error(
+                        `Error when writing package ${name}@${version} to storage`
+                      );
+                      reject(errWrite);
+                    })
+                    .on("finish", () => resolve(streamPackage(repo, filePath)))
+                );
 
-              req.pipe(
-                fs
-                  .createWriteStream(filePath)
-                  .on("error", errWrite => {
-                    logger.error(
-                      `Error when writing package ${name}@${version} to storage`
-                    );
-                    reject(errWrite);
-                  })
-                  .on("finish", () => resolve(streamPackage(repo, filePath)))
-              );
-
-              return req.resume();
-            });
+                return req.resume();
+              })
+              .catch(error => reject(error));
           });
       });
   });
