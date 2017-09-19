@@ -1,6 +1,6 @@
 const config = require("config");
 const es = require("event-stream");
-const fs = require("fs");
+const { createReadStream, createWriteStream } = require("fs");
 const request = require("request");
 const { Transform } = require("stream");
 const { promisify } = require("util");
@@ -8,7 +8,7 @@ const logger = require("winston");
 const { getServerUrl } = require("../../utils/urls");
 
 const mkdirp = promisify(require("mkdirp"));
-const stat = promisify(fs.stat);
+const stat = promisify(require("fs").stat);
 
 const serverConfig = config.get("server");
 
@@ -46,8 +46,7 @@ const checkPackageFile = (repo, name, version) =>
   stat(`${repo.storage}/${name}/${getFileName(name, version)}`);
 
 const streamPackage = (repo, path) =>
-  fs
-    .createReadStream(path)
+  createReadStream(path)
     .pipe(es.split())
     .pipe(new TarballReplacer(repo));
 
@@ -90,8 +89,7 @@ const getMainPackage = (repo, name) =>
         return mkdirp(directoryPath)
           .then(() => {
             req.pipe(
-              fs
-                .createWriteStream(filePath)
+              createWriteStream(filePath)
                 .on("error", errWrite => {
                   logger.error(`Error when writing package ${name} to storage`);
                   reject(errWrite);
@@ -140,8 +138,7 @@ const getVersionedPackage = (repo, name, version) =>
             return mkdirp(directoryPath)
               .then(() => {
                 req.pipe(
-                  fs
-                    .createWriteStream(filePath)
+                  createWriteStream(filePath)
                     .on("error", errWrite => {
                       logger.error(
                         `Error when writing package ${name}@${version} to storage`

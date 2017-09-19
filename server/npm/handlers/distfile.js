@@ -1,13 +1,13 @@
-const fs = require("fs");
+const { createReadStream, createWriteStream } = require("fs");
 const request = require("request");
 const { promisify } = require("util");
 const logger = require("winston");
 
 const mkdirp = promisify(require("mkdirp"));
-const stat = promisify(fs.stat);
+const stat = promisify(require("fs").stat);
 
 const streamDistFile = (repo, name, distFile) =>
-  fs.createReadStream(`${repo.storage}/${name}/-/${distFile}`);
+  createReadStream(`${repo.storage}/${name}/-/${distFile}`);
 
 const checkDistFile = (repo, name, distFile) =>
   stat(`${repo.storage}/${name}/-/${distFile}`);
@@ -46,8 +46,7 @@ const getDistFile = (repo, name, distFile) =>
             return mkdirp(directoryPath)
               .then(() => {
                 req.pipe(
-                  fs
-                    .createWriteStream(filePath)
+                  createWriteStream(filePath)
                     .on("error", error => {
                       logger.error(
                         `Error when writing distfile ${distFile} for package ${name} to storage`
