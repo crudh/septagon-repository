@@ -3,11 +3,13 @@ const _forEach = require("lodash/fp/forEach");
 const bodyParser = require("body-parser");
 const config = require("config");
 const express = require("express");
-const mkdirp = require("mkdirp");
 const logger = require("winston");
 const path = require("path");
+const { promisify } = require("util");
 const routes = require("./routes");
 const { validateServerConfig } = require("./utils/validate_config");
+
+const mkdirp = promisify(require("mkdirp"));
 
 const serverConfig = config.get("server");
 const configErrors = validateServerConfig(serverConfig);
@@ -32,12 +34,10 @@ if (serverConfig.log.file) {
 }
 
 _forEach(repo => {
-  mkdirp(repo.storage, err => {
-    if (!err) return;
-
+  mkdirp(repo.storage).catch(error => {
     logger.error(
       `Error when creating the storage directory (${serverConfig.storage})`,
-      err
+      error
     );
     process.exit(1);
   });

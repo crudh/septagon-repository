@@ -1,11 +1,14 @@
 const config = require("config");
 const es = require("event-stream");
-const fs = require("fs");
-const mkdirp = require("mkdirp");
+const { createReadStream, createWriteStream } = require("fs");
 const request = require("request");
 const { Transform } = require("stream");
+const { promisify } = require("util");
 const logger = require("winston");
 const { getServerUrl } = require("../../utils/urls");
+
+const mkdirp = promisify(require("mkdirp"));
+const stat = promisify(require("fs").stat);
 
 const serverConfig = config.get("server");
 
@@ -39,94 +42,38 @@ const getUpstreamUrl = (repo, name, version) => {
   return `${baseUrl}/${version}`;
 };
 
-const checkPackageFile = (repo, name, version, callback) => {
-  const fileName = getFileName(name, version);
-  fs.stat(`${repo.storage}/${name}/${fileName}`, err => callback(err));
-};
+const checkPackageFile = (repo, name, version) =>
+  stat(`${repo.storage}/${name}/${getFileName(name, version)}`);
 
-const streamPackage = (repo, path, callback) => {
-  const readStream = fs
-    .createReadStream(path)
+const streamPackage = (repo, path) =>
+  createReadStream(path)
     .pipe(es.split())
     .pipe(new TarballReplacer(repo));
-  callback(null, readStream);
-};
 
-const getMainPackage = (repo, name, callback) => {
-  const fileName = getFileName(name);
-  const directoryPath = `${repo.storage}/${name}`;
-  const filePath = `${directoryPath}/${fileName}`;
+const getMainPackage = (repo, name) =>
+  new Promise((resolve, reject) => {
+    const fileName = getFileName(name);
+    const directoryPath = `${repo.storage}/${name}`;
+    const filePath = `${directoryPath}/${fileName}`;
 
-  if (!repo.upstream) {
-    return checkPackageFile(repo, name, null, errFile => {
-      return errFile
-        ? callback({ statusCode: 404 })
-        : streamPackage(repo, filePath, callback);
-    });
-  }
+    if (!repo.upstream) {
+      return checkPackageFile(repo, name)
+        .then(() => resolve(streamPackage(repo, filePath)))
+        .catch(() => reject({ statusCode: 404 }));
+    }
 
-  const req = request(getUpstreamUrl(repo, name));
-  req.pause();
-
-  return req
-    .on("error", errRequest => {
-      logger.error(
-        `Network error when fetching package ${name} from upstream, checking local cache`
-      );
-
-      return checkPackageFile(repo, name, null, errFile => {
-        return errFile
-          ? callback(errRequest)
-          : streamPackage(repo, filePath, callback);
-      });
-    })
-    .on("response", response => {
-      const statusCode = response.statusCode;
-
-      if (statusCode < 200 || statusCode >= 300) {
-        const error = new Error(
-          `Got ${statusCode} when fetching package from upstream`
-        );
-        error.statusCode = statusCode;
-        return callback(error);
-      }
-
-      return mkdirp(directoryPath, errDir => {
-        if (errDir) return callback(errDir);
-
-        req.pipe(
-          fs
-            .createWriteStream(filePath)
-            .on("error", errWrite => {
-              logger.error(`Error when writing package ${name} to storage`);
-              callback(errWrite);
-            })
-            .on("finish", () => streamPackage(repo, filePath, callback))
-        );
-
-        return req.resume();
-      });
-    });
-};
-
-const getVersionedPackage = (repo, name, version, callback) => {
-  const fileName = getFileName(name, version);
-  const directoryPath = `${repo.storage}/${name}`;
-  const filePath = `${directoryPath}/${fileName}`;
-
-  return checkPackageFile(repo, name, version, errFile => {
-    if (!errFile) return streamPackage(repo, filePath, callback);
-    if (!repo.upstream) return callback({ statusCode: 404 });
-
-    const req = request(getUpstreamUrl(repo, name, version));
+    const req = request(getUpstreamUrl(repo, name));
     req.pause();
 
     return req
       .on("error", errRequest => {
         logger.error(
-          `Network error when fetching package ${name}@${version} from upstream`
+          `Network error when fetching package ${name} from upstream, checking local cache`
         );
-        callback(errRequest);
+
+        return checkPackageFile(repo, name)
+          .then(() => resolve(streamPackage(repo, filePath)))
+          .catch(() => reject(errRequest));
       })
       .on("response", response => {
         const statusCode = response.statusCode;
@@ -136,29 +83,77 @@ const getVersionedPackage = (repo, name, version, callback) => {
             `Got ${statusCode} when fetching package from upstream`
           );
           error.statusCode = statusCode;
-          return callback(error);
+          return reject(error);
         }
 
-        return mkdirp(directoryPath, errDir => {
-          if (errDir) return callback(errDir);
+        return mkdirp(directoryPath)
+          .then(() => {
+            req.pipe(
+              createWriteStream(filePath)
+                .on("error", errWrite => {
+                  logger.error(`Error when writing package ${name} to storage`);
+                  reject(errWrite);
+                })
+                .on("finish", () => resolve(streamPackage(repo, filePath)))
+            );
 
-          req.pipe(
-            fs
-              .createWriteStream(filePath)
-              .on("error", errWrite => {
-                logger.error(
-                  `Error when writing package ${name}@${version} to storage`
-                );
-                callback(errWrite);
-              })
-              .on("finish", () => streamPackage(repo, filePath, callback))
-          );
-
-          return req.resume();
-        });
+            return req.resume();
+          })
+          .catch(error => reject(error));
       });
   });
-};
+
+const getVersionedPackage = (repo, name, version) =>
+  new Promise((resolve, reject) => {
+    const fileName = getFileName(name, version);
+    const directoryPath = `${repo.storage}/${name}`;
+    const filePath = `${directoryPath}/${fileName}`;
+
+    return checkPackageFile(repo, name, version)
+      .then(() => resolve(streamPackage(repo, filePath)))
+      .catch(() => {
+        if (!repo.upstream) return reject({ statusCode: 404 });
+
+        const req = request(getUpstreamUrl(repo, name, version));
+        req.pause();
+
+        return req
+          .on("error", errRequest => {
+            logger.error(
+              `Network error when fetching package ${name}@${version} from upstream`
+            );
+            reject(errRequest);
+          })
+          .on("response", response => {
+            const statusCode = response.statusCode;
+
+            if (statusCode < 200 || statusCode >= 300) {
+              const error = new Error(
+                `Got ${statusCode} when fetching package from upstream`
+              );
+              error.statusCode = statusCode;
+              return reject(error);
+            }
+
+            return mkdirp(directoryPath)
+              .then(() => {
+                req.pipe(
+                  createWriteStream(filePath)
+                    .on("error", errWrite => {
+                      logger.error(
+                        `Error when writing package ${name}@${version} to storage`
+                      );
+                      reject(errWrite);
+                    })
+                    .on("finish", () => resolve(streamPackage(repo, filePath)))
+                );
+
+                return req.resume();
+              })
+              .catch(error => reject(error));
+          });
+      });
+  });
 
 module.exports = {
   getMainPackage,

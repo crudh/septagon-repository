@@ -13,23 +13,19 @@ const getDistFile = (req, res) => {
   const distFile = req.params.distFile;
   logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`);
 
-  distFileHandler.getDistFile(
-    reposConfig[repo],
-    name,
-    distFile,
-    (err, stream) => {
-      if (err) {
-        logger.error(
-          `Error when fetching distfile ${distFile} for package ${name}`,
-          err
-        );
-        return handleError(res, err);
-      }
-
+  distFileHandler
+    .getDistFile(reposConfig[repo], name, distFile)
+    .then(stream => {
       res.set("Content-Type", "application/octet-stream");
       return stream.pipe(res);
-    }
-  );
+    })
+    .catch(error => {
+      logger.error(
+        `Error when fetching distfile ${distFile} for package ${name}`,
+        error
+      );
+      return handleError(res, error);
+    });
 };
 
 const getMainPackage = (req, res) => {
@@ -37,15 +33,16 @@ const getMainPackage = (req, res) => {
   const name = req.params.name;
   logger.info(`Fetching package ${name} (${req.originalUrl})`);
 
-  packageHandler.getMainPackage(reposConfig[repo], name, (err, stream) => {
-    if (err) {
-      logger.error(`Error when fetching package ${name}`, err);
-      return handleError(res, err);
-    }
-
-    res.set("Content-Type", "application/json");
-    return stream.pipe(res);
-  });
+  packageHandler
+    .getMainPackage(reposConfig[repo], name)
+    .then(stream => {
+      res.set("Content-Type", "application/json");
+      return stream.pipe(res);
+    })
+    .catch(error => {
+      logger.error(`Error when fetching package ${name}`, error);
+      return handleError(res, error);
+    });
 };
 
 const getVersionedPackage = (req, res) => {
@@ -54,31 +51,25 @@ const getVersionedPackage = (req, res) => {
   const version = req.params.version;
   logger.info(`Fetching package ${name}@${version} (${req.originalUrl})`);
 
-  packageHandler.getVersionedPackage(
-    reposConfig[repo],
-    name,
-    version,
-    (err, stream) => {
-      if (err) {
-        logger.error(`Error when fetching package ${name}@${version}`, err);
-        return handleError(res, err);
-      }
-
+  packageHandler
+    .getVersionedPackage(reposConfig[repo], name, version)
+    .then(stream => {
       res.set("Content-Type", "application/json");
       return stream.pipe(res);
-    }
-  );
+    })
+    .catch(error => {
+      logger.error(`Error when fetching package ${name}@${version}`, error);
+      return handleError(res, error);
+    });
 };
 
 const searchPackage = (req, res) => {
   const repoName = req.params.repo;
   const repo = reposConfig[repoName];
 
-  if (!repo.upstream) {
-    return handleError(res, { statusCode: 404 });
-  }
-
-  return req.pipe(request(repo.upstream + req.url)).pipe(res);
+  return !repo.upstream
+    ? handleError(res, { statusCode: 404 })
+    : req.pipe(request(repo.upstream + req.url)).pipe(res);
 };
 
 module.exports = {
