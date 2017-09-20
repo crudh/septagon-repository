@@ -66,14 +66,14 @@ const getMainPackage = (repo, name) =>
     req.pause();
 
     return req
-      .on("error", errRequest => {
+      .on("error", error => {
         logger.error(
           `Network error when fetching package ${name} from upstream, checking local cache`
         );
 
         return checkPackageFile(repo, name)
           .then(() => resolve(streamPackage(repo, filePath)))
-          .catch(() => reject(errRequest));
+          .catch(() => reject(error));
       })
       .on("response", response => {
         const statusCode = response.statusCode;
@@ -90,9 +90,9 @@ const getMainPackage = (repo, name) =>
           .then(() => {
             req.pipe(
               createWriteStream(filePath)
-                .on("error", errWrite => {
+                .on("error", error => {
                   logger.error(`Error when writing package ${name} to storage`);
-                  reject(errWrite);
+                  reject(error);
                 })
                 .on("finish", () => resolve(streamPackage(repo, filePath)))
             );
@@ -118,11 +118,11 @@ const getVersionedPackage = (repo, name, version) =>
         req.pause();
 
         return req
-          .on("error", errRequest => {
+          .on("error", error => {
             logger.error(
               `Network error when fetching package ${name}@${version} from upstream`
             );
-            reject(errRequest);
+            reject(error);
           })
           .on("response", response => {
             const statusCode = response.statusCode;
@@ -139,11 +139,11 @@ const getVersionedPackage = (repo, name, version) =>
               .then(() => {
                 req.pipe(
                   createWriteStream(filePath)
-                    .on("error", errWrite => {
+                    .on("error", error => {
                       logger.error(
                         `Error when writing package ${name}@${version} to storage`
                       );
-                      reject(errWrite);
+                      reject(error);
                     })
                     .on("finish", () => resolve(streamPackage(repo, filePath)))
                 );
