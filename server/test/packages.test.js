@@ -25,7 +25,7 @@ const getMainPackageFile = done => {
   request(app)
     .get("/npm/main/seamless-immutable-mergers")
     .expect(200)
-    .expect("Content-Type", "application/json")
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end((err, res) => {
       if (err) return done(err);
 
@@ -72,7 +72,7 @@ const getVersionedPackageFile = done => {
   request(app)
     .get("/npm/main/seamless-immutable-mergers/5.0.0")
     .expect(200)
-    .expect("Content-Type", "application/json")
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end((err, res) => {
       if (err) return done(err);
 
