@@ -42,8 +42,6 @@ const getUpstreamUrl = (repo, name, version) => {
   return `${baseUrl}/${version}`;
 };
 
-const checkPackageFile = filePath => stat(filePath);
-
 const streamPackage = (repo, path) =>
   createReadStream(path)
     .pipe(es.split())
@@ -59,7 +57,7 @@ const getMainPackage = (repo, name) =>
         const directoryPath = `${repo.storage}/local/${name}`;
         const filePath = `${directoryPath}/${fileName}`;
 
-        return checkPackageFile(filePath)
+        return stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => reject({ statusCode: 404 }));
       })
@@ -78,7 +76,7 @@ const getMainPackage = (repo, name) =>
               `Network error when fetching package ${name} from upstream, checking local cache`
             );
 
-            return checkPackageFile(filePath)
+            return stat(filePath)
               .then(() => resolve(streamPackage(repo, filePath)))
               .catch(() => reject(error));
           })
@@ -121,7 +119,7 @@ const getVersionedPackage = (repo, name, version) =>
         const directoryPath = `${repo.storage}/local/${name}`;
         const filePath = `${directoryPath}/${fileName}`;
 
-        return checkPackageFile(filePath)
+        return stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => reject({ statusCode: 404 }));
       })
@@ -131,7 +129,7 @@ const getVersionedPackage = (repo, name, version) =>
         const directoryPath = `${repo.storage}/upstream/${name}`;
         const filePath = `${directoryPath}/${fileName}`;
 
-        return checkPackageFile(filePath)
+        return stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => {
             const req = request(getUpstreamUrl(repo, name, version));

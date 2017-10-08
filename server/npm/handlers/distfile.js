@@ -6,10 +6,6 @@ const logger = require("winston");
 const mkdirp = promisify(require("mkdirp"));
 const stat = promisify(require("fs").stat);
 
-const streamDistFile = filePath => createReadStream(filePath);
-
-const checkDistFile = filePath => stat(filePath);
-
 const checkLocal = (repo, name) => stat(`${repo.storage}/local/${name}`);
 
 const getDistFile = (repo, name, distFile) =>
@@ -19,8 +15,8 @@ const getDistFile = (repo, name, distFile) =>
         const directoryPath = `${repo.storage}/local/${name}/-`;
         const filePath = `${directoryPath}/${distFile}`;
 
-        return checkDistFile(filePath)
-          .then(() => resolve(streamDistFile(repo, name, distFile)))
+        return stat(filePath)
+          .then(() => resolve(createReadStream(repo, name, distFile)))
           .catch(() => reject({ statusCode: 404 }));
       })
       .catch(() => {
@@ -29,8 +25,8 @@ const getDistFile = (repo, name, distFile) =>
         const directoryPath = `${repo.storage}/upstream/${name}/-`;
         const filePath = `${directoryPath}/${distFile}`;
 
-        return checkDistFile(filePath)
-          .then(() => resolve(streamDistFile(filePath)))
+        return stat(filePath)
+          .then(() => resolve(createReadStream(filePath)))
           .catch(() => {
             const req = request(`${repo.upstream}/${name}/-/${distFile}`);
             req.pause();
@@ -63,7 +59,7 @@ const getDistFile = (repo, name, distFile) =>
                           );
                           reject(error);
                         })
-                        .on("finish", () => resolve(streamDistFile(filePath)))
+                        .on("finish", () => resolve(createReadStream(filePath)))
                     );
 
                     return req.resume();
