@@ -1,8 +1,8 @@
 const config = require("config");
 const request = require("supertest");
-const { app, server } = require("../server");
-const { mkdirp } = require("../utils/promisified");
-const { getServerUrl } = require("../utils/urls");
+const { app, server } = require("../../server");
+const { mkdirp } = require("../../utils/promisified");
+const { getServerUrl } = require("../../utils/urls");
 
 const serverConfig = config.get("server");
 const localUrlRegex = new RegExp(

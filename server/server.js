@@ -7,7 +7,7 @@ const logger = require("winston");
 const path = require("path");
 const routes = require("./routes");
 const { mkdirp } = require("./utils/promisified");
-const { validateServerConfig } = require("./utils/validate_config");
+const { validateServerConfig } = require("./utils/validateConfig");
 
 const serverConfig = config.get("server");
 const configErrors = validateServerConfig(serverConfig);
