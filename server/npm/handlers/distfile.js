@@ -6,61 +6,70 @@ const logger = require("winston");
 const mkdirp = promisify(require("mkdirp"));
 const stat = promisify(require("fs").stat);
 
-const streamDistFile = (repo, name, distFile) =>
-  createReadStream(`${repo.storage}/${name}/-/${distFile}`);
+const streamDistFile = filePath => createReadStream(filePath);
 
-const checkDistFile = (repo, name, distFile) =>
-  stat(`${repo.storage}/${name}/-/${distFile}`);
+const checkDistFile = filePath => stat(filePath);
+
+const checkLocal = (repo, name) => stat(`${repo.storage}/local/${name}`);
 
 const getDistFile = (repo, name, distFile) =>
   new Promise((resolve, reject) => {
-    const directoryPath = `${repo.storage}/${name}/-`;
-    const filePath = `${directoryPath}/${distFile}`;
+    return checkLocal(repo, name)
+      .then(() => {
+        const directoryPath = `${repo.storage}/local/${name}/-`;
+        const filePath = `${directoryPath}/${distFile}`;
 
-    return checkDistFile(repo, name, distFile)
-      .then(() => resolve(streamDistFile(repo, name, distFile)))
+        return checkDistFile(filePath)
+          .then(() => resolve(streamDistFile(repo, name, distFile)))
+          .catch(() => reject({ statusCode: 404 }));
+      })
       .catch(() => {
         if (!repo.upstream) return reject({ statusCode: 404 });
 
-        const req = request(`${repo.upstream}/${name}/-/${distFile}`);
-        req.pause();
+        const directoryPath = `${repo.storage}/upstream/${name}/-`;
+        const filePath = `${directoryPath}/${distFile}`;
 
-        return req
-          .on("error", error => {
-            logger.error(
-              `Network error when fetching distfile ${distFile} for package ${name} from upstream`
-            );
-            reject(error);
-          })
-          .on("response", response => {
-            const statusCode = response.statusCode;
+        return checkDistFile(filePath)
+          .then(() => resolve(streamDistFile(filePath)))
+          .catch(() => {
+            const req = request(`${repo.upstream}/${name}/-/${distFile}`);
+            req.pause();
 
-            if (statusCode < 200 || statusCode >= 300) {
-              const error = new Error(
-                `Got ${statusCode} when fetching dist file from upstream`
-              );
-              error.statusCode = statusCode;
-              return reject(error);
-            }
-
-            return mkdirp(directoryPath)
-              .then(() => {
-                req.pipe(
-                  createWriteStream(filePath)
-                    .on("error", error => {
-                      logger.error(
-                        `Error when writing distfile ${distFile} for package ${name} to storage`
-                      );
-                      reject(error);
-                    })
-                    .on("finish", () =>
-                      resolve(streamDistFile(repo, name, distFile))
-                    )
+            return req
+              .on("error", error => {
+                logger.error(
+                  `Network error when fetching distfile ${distFile} for package ${name} from upstream`
                 );
-
-                return req.resume();
+                reject(error);
               })
-              .catch(error => reject(error));
+              .on("response", response => {
+                const statusCode = response.statusCode;
+
+                if (statusCode < 200 || statusCode >= 300) {
+                  const error = new Error(
+                    `Got ${statusCode} when fetching dist file from upstream`
+                  );
+                  error.statusCode = statusCode;
+                  return reject(error);
+                }
+
+                return mkdirp(directoryPath)
+                  .then(() => {
+                    req.pipe(
+                      createWriteStream(filePath)
+                        .on("error", error => {
+                          logger.error(
+                            `Error when writing distfile ${distFile} for package ${name} to storage`
+                          );
+                          reject(error);
+                        })
+                        .on("finish", () => resolve(streamDistFile(filePath)))
+                    );
+
+                    return req.resume();
+                  })
+                  .catch(error => reject(error));
+              });
           });
       });
   });
