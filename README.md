@@ -11,8 +11,8 @@ A simple Node.js based npm repository manager and proxy.
  * `npm run dev`
 
 ## Setup npm client to use the registry
+This uses the configured `main` repository:
  * `npm config set registry http://localhost:3000/registry/main`
 
 ## Configuration
  * Edit `config/default.json` or override in `config/production.json`
- * Or go to `http://localhost:3000` (if not changed in the config)
