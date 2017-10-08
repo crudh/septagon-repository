@@ -5,11 +5,9 @@ const config = require("config");
 const express = require("express");
 const logger = require("winston");
 const path = require("path");
-const { promisify } = require("util");
 const routes = require("./routes");
+const { mkdirp } = require("./utils/promisified");
 const { validateServerConfig } = require("./utils/validate_config");
-
-const mkdirp = promisify(require("mkdirp"));
 
 const serverConfig = config.get("server");
 const configErrors = validateServerConfig(serverConfig);
@@ -34,13 +32,16 @@ if (serverConfig.log.file) {
 }
 
 _forEach(repo => {
-  mkdirp(repo.storage).catch(error => {
-    logger.error(
-      `Error when creating the storage directory (${serverConfig.storage})`,
-      error
-    );
-    process.exit(1);
-  });
+  mkdirp(repo.storage)
+    .then(() => mkdirp(`${repo.storage}/local`))
+    .then(() => repo.upstream && mkdirp(`${repo.storage}/upstream`))
+    .catch(error => {
+      logger.error(
+        `Error when creating the storage directory (${serverConfig.storage})`,
+        error
+      );
+      process.exit(1);
+    });
 }, serverConfig.repos);
 
 const app = express();

@@ -1,6 +1,7 @@
 const config = require("config");
 const request = require("supertest");
 const { app, server } = require("../server");
+const { mkdirp } = require("../utils/promisified");
 const { getServerUrl } = require("../utils/urls");
 
 const serverConfig = config.get("server");
@@ -45,18 +46,26 @@ const getMainPackageFile = done => {
     });
 };
 
+const getMainPackageFileLocalOverride = done => {
+  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+    .then(() => {
+      request(app)
+        .get("/npm/localoverride/seamless-immutable-mergers")
+        .expect(404, done);
+    })
+    .catch(done);
+};
+
 const getMainPackageFileNoUpstream = done => {
   request(app)
     .get("/npm/standalone/seamless-immutable-mergers")
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const getMainPackageFileNonexistingRepo = done => {
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers")
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const getVersionedPackageFile = done => {
@@ -80,18 +89,26 @@ const getVersionedPackageFile = done => {
     });
 };
 
+const getVersionedPackageFileLocalOverride = done => {
+  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+    .then(() => {
+      request(app)
+        .get("/npm/localoverride/seamless-immutable-mergers/5.0.0")
+        .expect(404, done);
+    })
+    .catch(done);
+};
+
 const getVersionedPackageFileNoUpstream = done => {
   request(app)
     .get("/npm/standalone/seamless-immutable-mergers/5.0.0")
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const getVersionedPackageFileNonexistingRepo = done => {
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers/5.0.0")
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const getPackageDistFile = done => {
@@ -111,13 +128,24 @@ const getPackageDistFile = done => {
     });
 };
 
+const getPackageDistFileLocalOverride = done => {
+  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+    .then(() => {
+      request(app)
+        .get(
+          "/npm/localoverride/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
+        )
+        .expect(404, done);
+    })
+    .catch(done);
+};
+
 const getPackageDistFileNonexistingRepo = done => {
   request(app)
     .get(
       "/npm/nonexisting/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
     )
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const getPackageDistFileNoUpstream = done => {
@@ -125,12 +153,13 @@ const getPackageDistFileNoUpstream = done => {
     .get(
       "/npm/standalone/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
     )
-    .expect(404)
-    .end(done);
+    .expect(404, done);
 };
 
 const searchPackageNoUpstream = done => {
-  request(app).get("/npm/standalone/-/all").expect(404).end(done);
+  request(app)
+    .get("/npm/standalone/-/all")
+    .expect(404, done);
 };
 
 describe("Packages", () => {
@@ -140,6 +169,10 @@ describe("Packages", () => {
       it(
         "should be able to get a main package file when it is cached",
         getMainPackageFile
+      );
+      it(
+        "should return 404 if an empty directory is located in the local sub dir",
+        getMainPackageFileLocalOverride
       );
       it(
         "should return 404 if not stored locally and no upstream is defined",
@@ -161,6 +194,10 @@ describe("Packages", () => {
         getVersionedPackageFile
       );
       it(
+        "should return 404 if an empty directory is located in the local sub dir",
+        getVersionedPackageFileLocalOverride
+      );
+      it(
         "should return 404 if not stored locally and no upstream is defined",
         getVersionedPackageFileNoUpstream
       );
@@ -175,6 +212,10 @@ describe("Packages", () => {
       it(
         "should be able to get a package distfile when it is cached",
         getPackageDistFile
+      );
+      it(
+        "should return 404 if an empty directory is located in the local sub dir",
+        getPackageDistFileLocalOverride
       );
       it(
         "should return 404 if not stored locally and no upstream is defined",
