@@ -1,10 +1,6 @@
-const _flatten = require("lodash/fp/flatten");
-const _flow = require("lodash/fp/flow");
 const _getOr = require("lodash/fp/getOr");
 const _isFinite = require("lodash/fp/isFinite");
 const _isPlainObject = require("lodash/fp/isPlainObject");
-const _keys = require("lodash/fp/keys");
-const _map = require("lodash/fp/map");
 
 const isSet = () => (key, value) => (value ? "" : `${key}: should be set`);
 
@@ -21,7 +17,9 @@ const isNumber = () => (key, value) =>
   _isFinite(parseInt(value, 10)) ? "" : `${key}: should be a number`;
 
 const hasChild = () => (key, value) =>
-  _keys(value).length > 0 ? "" : `${key}: should have at least one child`;
+  Object.keys(value || {}).length > 0
+    ? ""
+    : `${key}: should have at least one child`;
 
 const runChecks = (config, ...checks) =>
   checks.reduce(
@@ -35,14 +33,9 @@ const runChecks = (config, ...checks) =>
   );
 
 const createChildrenChecks = (config, parentKey, checkFunc) =>
-  _flow(
-    _getOr({}, parentKey),
-    _keys,
-    _map(childKey =>
-      checkFunc(`${parentKey}.${childKey}`, childKey, parentKey)
-    ),
-    _flatten
-  )(config);
+  Object.keys(_getOr({}, parentKey, config))
+    .map(childKey => checkFunc(`${parentKey}.${childKey}`, childKey, parentKey))
+    .reduce((acc, cur) => acc.concat(cur), []);
 
 const validateServerConfig = config =>
   runChecks(
