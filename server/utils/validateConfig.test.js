@@ -1,4 +1,4 @@
-const { validateServerConfig } = require("../../utils/validateConfig");
+const { validateServerConfig } = require("./validateConfig");
 
 const defaultConfig = {
   server: {
