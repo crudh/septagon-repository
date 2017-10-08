@@ -6,6 +6,11 @@
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/testRepository"
       },
+      "localoverride": {
+        "id": "localoverride",
+        "upstream": "https://registry.npmjs.org",
+        "storage": "./tmp/localoverrideRepository"
+      },
       "standalone": {
         "id": "standalone",
         "storage": "./tmp/standaloneRepository"
