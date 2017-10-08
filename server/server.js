@@ -34,13 +34,16 @@ if (serverConfig.log.file) {
 }
 
 _forEach(repo => {
-  mkdirp(repo.storage).catch(error => {
-    logger.error(
-      `Error when creating the storage directory (${serverConfig.storage})`,
-      error
-    );
-    process.exit(1);
-  });
+  mkdirp(repo.storage)
+    .then(() => mkdirp(`${repo.storage}/local`))
+    .then(() => repo.upstream && mkdirp(`${repo.storage}/upstream`))
+    .catch(error => {
+      logger.error(
+        `Error when creating the storage directory (${serverConfig.storage})`,
+        error
+      );
+      process.exit(1);
+    });
 }, serverConfig.repos);
 
 const app = express();
