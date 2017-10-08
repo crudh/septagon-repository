@@ -3,12 +3,9 @@ const es = require("event-stream");
 const { createReadStream, createWriteStream } = require("fs");
 const request = require("request");
 const { Transform } = require("stream");
-const { promisify } = require("util");
 const logger = require("winston");
+const { mkdirp, stat } = require("../../utils/promisified");
 const { getServerUrl } = require("../../utils/urls");
-
-const mkdirp = promisify(require("mkdirp"));
-const stat = promisify(require("fs").stat);
 
 const serverConfig = config.get("server");
 

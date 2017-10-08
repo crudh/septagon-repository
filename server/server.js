@@ -5,11 +5,9 @@ const config = require("config");
 const express = require("express");
 const logger = require("winston");
 const path = require("path");
-const { promisify } = require("util");
 const routes = require("./routes");
+const { mkdirp } = require("./utils/promisified");
 const { validateServerConfig } = require("./utils/validate_config");
-
-const mkdirp = promisify(require("mkdirp"));
 
 const serverConfig = config.get("server");
 const configErrors = validateServerConfig(serverConfig);

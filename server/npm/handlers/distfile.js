@@ -1,10 +1,7 @@
 const { createReadStream, createWriteStream } = require("fs");
 const request = require("request");
-const { promisify } = require("util");
 const logger = require("winston");
-
-const mkdirp = promisify(require("mkdirp"));
-const stat = promisify(require("fs").stat);
+const { mkdirp, stat } = require("../../utils/promisified");
 
 const checkLocal = (repo, name) => stat(`${repo.storage}/local/${name}`);
 
