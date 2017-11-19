@@ -9,7 +9,12 @@
       "main": {
         "id": "main",
         "upstream": "https://registry.npmjs.org",
-        "storage": "./repository"
+        "storage": "./repository",
+        "users": {
+          "c": {
+            "write": true
+          }
+        }
       }
     },
     "log": {
@@ -22,6 +27,12 @@
       "console": {
         "level": "error"
       }
+    }
+  },
+  "users": {
+    "c": {
+      "salt": "",
+      "hash": ""
     }
   }
 }

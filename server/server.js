@@ -1,10 +1,8 @@
 /* eslint no-console: "off" */
 const _forEach = require("lodash/fp/forEach");
-const bodyParser = require("body-parser");
 const config = require("config");
 const express = require("express");
 const logger = require("winston");
-const path = require("path");
 const routes = require("./routes");
 const { mkdirp } = require("./utils/promisified");
 const { validateServerConfig } = require("./utils/validateConfig");
@@ -47,16 +45,15 @@ _forEach(repo => {
 const app = express();
 app.set("env", env);
 
-app.use(express.static("./public"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 routes(app);
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "/../public/index.html"));
+app.all("*", (req, res) => {
+  logger.error(`Unhandled URL: ${req.method} ${req.url}`);
+  res.status(404).send({ message: "Not found" });
 });
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const server = app.listen(port, host, err => {
   if (err) {
