@@ -1,4 +1,5 @@
 const logger = require("winston");
+const user = require("../handlers/user");
 
 const getRegistryInfo = (req, res) =>
   res.json({ registry_name: req.params.repo });
@@ -6,20 +7,18 @@ const getRegistryInfo = (req, res) =>
 const ping = (req, res) => res.json({});
 
 const login = (req, res) => {
-  const paramName = req.params.username;
+  const userName = req.params.username;
   const { name, password } = req.body;
 
-  if (paramName !== name || password !== "test") {
-    logger.error(`Failed login: ${paramName}`);
-    return res.status(401).json({ ok: false });
-  }
+  if (userName !== name) return res.status(401).json({ ok: false });
 
-  return res.status(201).json({ token: "kakatoken", ok: true });
-
-  // logger.error(`Failed login: ${req.url}, ${req.body}`);
-  // res.status(500).send({ message: "Error" });
-  // res.set("Content-Type", "application/json");
-  // res.send({});
+  return user
+    .login(name, password)
+    .then(token => res.status(201).json({ ok: true, token }))
+    .catch(() => {
+      logger.error(`Failed login: ${name}`);
+      res.status(401).json({ ok: false });
+    });
 };
 
 module.exports = {

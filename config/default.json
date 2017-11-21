@@ -9,7 +9,7 @@
       "main": {
         "id": "main",
         "upstream": "https://registry.npmjs.org",
-        "storage": "./repository",
+        "storage": "./repositories/main",
         "users": {
           "c": {
             "write": true
@@ -27,12 +27,14 @@
       "console": {
         "level": "error"
       }
-    }
-  },
-  "users": {
-    "c": {
-      "salt": "",
-      "hash": ""
+    },
+    "users": {
+      "c": {
+        "salt":
+          "uvhkKYchIDPMIxgTmGKzODM55oeYM11JaMxenax14SK4lC7pHs8M52op7TIPW0hIhdg9RTys2gOXPljVoH8bAA==",
+        "hash":
+          "PydPztglm8n8VopIe2QWCQA83Dq6KbG47eABH4Wjwb1C/OmWBG/YHmfzsu97PmRqV6OAdwCKD9LA/AMdS+B45jhn+QkHrbEMifnx1lzx8jp09RNcsHR8Yd21GN8pliselu08CF6+LPG0gEOlCFa01Zc0dl9kLFPngPeOkxvVXpM="
+      }
     }
   }
 }
