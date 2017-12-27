@@ -13,8 +13,7 @@ const getErrorMessage = statusCode => {
 
 const handleError = (res, err) => {
   const statusCode = err.statusCode || 500;
-  res.set("Content-Type", "application/json");
-  return res.status(statusCode).send({ message: getErrorMessage(statusCode) });
+  return res.status(statusCode).json({ message: getErrorMessage(statusCode) });
 };
 
 const validatorRepository = (req, res) => {
