@@ -1,9 +1,9 @@
 const { createReadStream, createWriteStream } = require("fs")
 const request = require("request")
 const logger = require("winston")
-const { mkdirp, stat } = require("../../utils/promisified")
+const { mkdirp, fs } = require("../../utils/promisified")
 
-const checkLocal = (repo, name) => stat(`${repo.storage}/local/${name}`)
+const checkLocal = (repo, name) => fs.stat(`${repo.storage}/local/${name}`)
 
 const getDistFile = (repo, name, distFile) =>
   new Promise((resolve, reject) => {
@@ -12,7 +12,8 @@ const getDistFile = (repo, name, distFile) =>
         const directoryPath = `${repo.storage}/local/${name}/-`
         const filePath = `${directoryPath}/${distFile}`
 
-        return stat(filePath)
+        return fs
+          .stat(filePath)
           .then(() => resolve(createReadStream(repo, name, distFile)))
           .catch(() => reject({ statusCode: 404 }))
       })
@@ -22,7 +23,8 @@ const getDistFile = (repo, name, distFile) =>
         const directoryPath = `${repo.storage}/upstream/${name}/-`
         const filePath = `${directoryPath}/${distFile}`
 
-        return stat(filePath)
+        return fs
+          .stat(filePath)
           .then(() => resolve(createReadStream(filePath)))
           .catch(() => {
             const req = request(`${repo.upstream}/${name}/-/${distFile}`)

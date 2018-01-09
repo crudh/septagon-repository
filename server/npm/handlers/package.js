@@ -4,7 +4,7 @@ const { createReadStream, createWriteStream } = require("fs")
 const request = require("request")
 const { Transform } = require("stream")
 const logger = require("winston")
-const { mkdirp, stat } = require("../../utils/promisified")
+const { mkdirp, fs } = require("../../utils/promisified")
 const { getServerUrl } = require("../../utils/urls")
 
 const serverLocation = config.get("server.location")
@@ -44,7 +44,7 @@ const streamPackage = (repo, path) =>
     .pipe(es.split())
     .pipe(new TarballReplacer(repo))
 
-const checkLocal = (repo, name) => stat(`${repo.storage}/local/${name}`)
+const checkLocal = (repo, name) => fs.stat(`${repo.storage}/local/${name}`)
 
 const getMainPackage = (repo, name) =>
   new Promise((resolve, reject) => {
@@ -54,7 +54,8 @@ const getMainPackage = (repo, name) =>
         const directoryPath = `${repo.storage}/local/${name}`
         const filePath = `${directoryPath}/${fileName}`
 
-        return stat(filePath)
+        return fs
+          .stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => reject({ statusCode: 404 }))
       })
@@ -73,7 +74,8 @@ const getMainPackage = (repo, name) =>
               `Network error when fetching package ${name} from upstream, checking local cache`
             )
 
-            return stat(filePath)
+            return fs
+              .stat(filePath)
               .then(() => resolve(streamPackage(repo, filePath)))
               .catch(() => reject(error))
           })
@@ -116,7 +118,8 @@ const getVersionedPackage = (repo, name, version) =>
         const directoryPath = `${repo.storage}/local/${name}`
         const filePath = `${directoryPath}/${fileName}`
 
-        return stat(filePath)
+        return fs
+          .stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => reject({ statusCode: 404 }))
       })
@@ -126,7 +129,8 @@ const getVersionedPackage = (repo, name, version) =>
         const directoryPath = `${repo.storage}/upstream/${name}`
         const filePath = `${directoryPath}/${fileName}`
 
-        return stat(filePath)
+        return fs
+          .stat(filePath)
           .then(() => resolve(streamPackage(repo, filePath)))
           .catch(() => {
             const req = request(getUpstreamUrl(repo, name, version))
