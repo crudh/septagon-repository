@@ -4,11 +4,8 @@ const { app, server } = require("../../server");
 const { mkdirp } = require("../../utils/promisified");
 const { getServerUrl } = require("../../utils/urls");
 
-const serverConfig = config.get("server");
-const localUrlRegex = new RegExp(
-  `^${getServerUrl(serverConfig.location)}`,
-  "g"
-);
+const serverLocation = config.get("server.location");
+const localUrlRegex = new RegExp(`^${getServerUrl(serverLocation)}`, "g");
 
 const binaryParser = (res, callback) => {
   res.setEncoding("binary");

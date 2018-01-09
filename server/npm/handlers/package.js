@@ -7,7 +7,7 @@ const logger = require("winston");
 const { mkdirp, stat } = require("../../utils/promisified");
 const { getServerUrl } = require("../../utils/urls");
 
-const serverConfig = config.get("server");
+const serverLocation = config.get("server.location");
 
 class TarballReplacer extends Transform {
   constructor(repo) {
@@ -22,7 +22,7 @@ class TarballReplacer extends Transform {
     this.push(
       line.replace(
         this.upstreamRegExp,
-        `${getServerUrl(serverConfig.location)}/npm/${this.repoId}`
+        `${getServerUrl(serverLocation)}/npm/${this.repoId}`
       )
     );
 
