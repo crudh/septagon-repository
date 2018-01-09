@@ -1,5 +1,4 @@
 /* eslint no-console: "off" */
-const _forEach = require("lodash/fp/forEach")
 const config = require("config")
 const express = require("express")
 const logger = require("winston")
@@ -29,7 +28,7 @@ if (serverConfig.log.file) {
   logger.add(logger.transports.File, serverConfig.log.file)
 }
 
-_forEach(repo => {
+Object.values(serverConfig.repos).forEach(repo =>
   mkdirp(repo.storage)
     .then(() => mkdirp(`${repo.storage}/local`))
     .then(() => repo.upstream && mkdirp(`${repo.storage}/upstream`))
@@ -40,7 +39,7 @@ _forEach(repo => {
       )
       process.exit(1)
     })
-}, serverConfig.repos)
+)
 
 const app = express()
 app.set("env", env)
