@@ -44,7 +44,7 @@ const getMainPackageFile = done => {
 }
 
 const getMainPackageFileLocalOverride = done => {
-  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+  mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
         .get("/npm/localoverride/seamless-immutable-mergers")
@@ -87,7 +87,7 @@ const getVersionedPackageFile = done => {
 }
 
 const getVersionedPackageFileLocalOverride = done => {
-  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+  mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
         .get("/npm/localoverride/seamless-immutable-mergers/5.0.0")
@@ -126,7 +126,7 @@ const getPackageDistFile = done => {
 }
 
 const getPackageDistFileLocalOverride = done => {
-  mkdirp("./tmp/localoverrideRepository/local/seamless-immutable-mergers")
+  mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
         .get(

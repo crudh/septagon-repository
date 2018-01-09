@@ -1,1 +1,23 @@
-{}
+{
+  "server": {
+    "repos": {
+      "main": {
+        "id": "main",
+        "upstream": "https://registry.npmjs.org",
+        "storage": "./repositories/main",
+        "public": false
+      }
+    },
+    "log": {
+      "file": {
+        "filename": "server.log",
+        "level": "info",
+        "handleExceptions": true,
+        "humanReadableUnhandledException": true
+      },
+      "console": {
+        "level": "error"
+      }
+    }
+  }
+}

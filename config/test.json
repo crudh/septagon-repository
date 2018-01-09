@@ -4,16 +4,19 @@
       "main": {
         "id": "main",
         "upstream": "https://registry.npmjs.org",
-        "storage": "./tmp/testRepository"
+        "storage": "./tmp/test/main",
+        "public": false
       },
       "localoverride": {
         "id": "localoverride",
         "upstream": "https://registry.npmjs.org",
-        "storage": "./tmp/localoverrideRepository"
+        "storage": "./tmp/test/localoverride",
+        "public": false
       },
       "standalone": {
         "id": "standalone",
-        "storage": "./tmp/standaloneRepository"
+        "storage": "./tmp/test/standalone",
+        "public": false
       }
     },
     "log": {
