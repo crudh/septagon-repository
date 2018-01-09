@@ -2,7 +2,8 @@ const _getOr = require("lodash/fp/getOr")
 const _isFinite = require("lodash/fp/isFinite")
 const _isPlainObject = require("lodash/fp/isPlainObject")
 
-const isSet = () => (key, value) => (value ? "" : `${key}: should be set`)
+const isSet = () => (key, value) =>
+  value !== null && value !== undefined ? "" : `${key}: should be set`
 
 const isAny = (...options) => (key, value) =>
   options.includes(value) ? "" : `${key}: should be any of [${options}]`
@@ -15,6 +16,9 @@ const isObject = () => (key, value) =>
 
 const isNumber = () => (key, value) =>
   _isFinite(parseInt(value, 10)) ? "" : `${key}: should be a number`
+
+const isBoolean = () => (key, value) =>
+  value === true || value === false ? "" : `${key}: should be a boolean`
 
 const hasChild = () => (key, value) =>
   Object.keys(value || {}).length > 0
@@ -47,7 +51,14 @@ const validateServerConfig = config =>
     ["repos", isSet(), isObject(), hasChild()],
     ...createChildrenChecks(config, "repos", (key, childKey) => [
       [`${key}.id`, isSet(), isEqual(childKey)],
-      [`${key}.storage`, isSet()]
+      [`${key}.storage`, isSet()],
+      [`${key}.public`, isSet(), isBoolean()]
+    ]),
+    ["log", isSet(), isObject()],
+    ["users", isSet(), isObject()],
+    ...createChildrenChecks(config, "users", key => [
+      [`${key}.salt`, isSet()],
+      [`${key}.hash`, isSet()]
     ])
   )
 

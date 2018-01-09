@@ -9,6 +9,7 @@
       "console": {
         "level": "info"
       }
-    }
+    },
+    "users": {}
   }
 }

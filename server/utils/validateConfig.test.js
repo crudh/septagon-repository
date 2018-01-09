@@ -11,11 +11,20 @@ const defaultConfig = {
       main: {
         id: "main",
         upstream: "https://registry.npmjs.org",
-        storage: "./tmp/testRepository"
+        storage: "./tmp/testRepository",
+        public: false
       },
       standalone: {
         id: "standalone",
-        storage: "./tmp/standaloneRepository"
+        storage: "./tmp/standaloneRepository",
+        public: false
+      }
+    },
+    log: {},
+    users: {
+      c: {
+        salt: "salt",
+        hash: "hash"
       }
     }
   }
@@ -30,18 +39,29 @@ const emptyRepoConfig = {
     },
     repos: {
       main: {}
-    }
+    },
+    log: {},
+    users: {}
   }
 }
 
 describe("Validate config", () => {
   describe("Server config", () => {
     it("should validate an empty config with all errors", () => {
-      expect(validateServerConfig({}).length).toEqual(10)
+      expect(validateServerConfig({}).length).toEqual(14)
     })
 
     it("should validate an empty repo with all errors", () => {
-      expect(validateServerConfig(emptyRepoConfig.server).length).toEqual(3)
+      expect(validateServerConfig(emptyRepoConfig.server).length).toEqual(5)
+    })
+
+    it("should validate incomplete user with all errors", () => {
+      expect(
+        validateServerConfig({
+          ...defaultConfig.server,
+          users: { c: {} }
+        }).length
+      ).toEqual(2)
     })
 
     it("should validate a correct file without errors", () => {
