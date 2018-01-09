@@ -1,8 +1,7 @@
 const config = require("config");
-const { createToken, setToken } = require("../../utils/authTokens");
 const { crypto } = require("../../utils/promisified");
 
-const users = config.get("server.users");
+const users = config.has("server.users") ? config.get("server.users") : [];
 
 const hash = (
   password,
@@ -27,16 +26,10 @@ const login = (username, password) =>
     if (!user) return reject(new Error("User not found"));
 
     return hash(password, user.salt)
-      .then(hash => {
-        user.hash === hash
-          ? createToken()
-              .then(token => {
-                setToken(token, username);
-                resolve(token);
-              })
-              .catch(reject)
-          : reject(new Error("Hash mismatch"));
-      })
+      .then(
+        hash =>
+          user.hash === hash ? resolve() : reject(new Error("Hash mismatch"))
+      )
       .catch(reject);
   });
 
