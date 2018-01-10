@@ -18,7 +18,7 @@ const binaryParser = (res, callback) => {
   })
 }
 
-const getMainPackageFile = done => {
+const getMainPackageFile = done =>
   request(app)
     .get("/npm/main/seamless-immutable-mergers")
     .expect(200)
@@ -41,9 +41,8 @@ const getMainPackageFile = done => {
 
       return done()
     })
-}
 
-const getMainPackageFileLocalOverride = done => {
+const getMainPackageFileLocalOverride = done =>
   mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
@@ -51,21 +50,18 @@ const getMainPackageFileLocalOverride = done => {
         .expect(404, done)
     })
     .catch(done)
-}
 
-const getMainPackageFileNoUpstream = done => {
+const getMainPackageFileNoUpstream = done =>
   request(app)
     .get("/npm/standalone/seamless-immutable-mergers")
     .expect(404, done)
-}
 
-const getMainPackageFileNonexistingRepo = done => {
+const getMainPackageFileNonexistingRepo = done =>
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers")
     .expect(404, done)
-}
 
-const getVersionedPackageFile = done => {
+const getVersionedPackageFile = done =>
   request(app)
     .get("/npm/main/seamless-immutable-mergers/5.0.0")
     .expect(200)
@@ -84,9 +80,8 @@ const getVersionedPackageFile = done => {
 
       return done()
     })
-}
 
-const getVersionedPackageFileLocalOverride = done => {
+const getVersionedPackageFileLocalOverride = done =>
   mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
@@ -94,21 +89,18 @@ const getVersionedPackageFileLocalOverride = done => {
         .expect(404, done)
     })
     .catch(done)
-}
 
-const getVersionedPackageFileNoUpstream = done => {
+const getVersionedPackageFileNoUpstream = done =>
   request(app)
     .get("/npm/standalone/seamless-immutable-mergers/5.0.0")
     .expect(404, done)
-}
 
-const getVersionedPackageFileNonexistingRepo = done => {
+const getVersionedPackageFileNonexistingRepo = done =>
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers/5.0.0")
     .expect(404, done)
-}
 
-const getPackageDistFile = done => {
+const getPackageDistFile = done =>
   request(app)
     .get(
       "/npm/main/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
@@ -123,9 +115,8 @@ const getPackageDistFile = done => {
 
       return done()
     })
-}
 
-const getPackageDistFileLocalOverride = done => {
+const getPackageDistFileLocalOverride = done =>
   mkdirp("./tmp/test/localoverride/local/seamless-immutable-mergers")
     .then(() => {
       request(app)
@@ -135,29 +126,25 @@ const getPackageDistFileLocalOverride = done => {
         .expect(404, done)
     })
     .catch(done)
-}
 
-const getPackageDistFileNonexistingRepo = done => {
+const getPackageDistFileNonexistingRepo = done =>
   request(app)
     .get(
       "/npm/nonexisting/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
     )
     .expect(404, done)
-}
 
-const getPackageDistFileNoUpstream = done => {
+const getPackageDistFileNoUpstream = done =>
   request(app)
     .get(
       "/npm/standalone/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
     )
     .expect(404, done)
-}
 
-const searchPackageNoUpstream = done => {
+const searchPackageNoUpstream = done =>
   request(app)
     .get("/npm/standalone/-/all")
     .expect(404, done)
-}
 
 describe("Packages", () => {
   describe("API", () => {
