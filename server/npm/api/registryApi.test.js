@@ -5,6 +5,7 @@ const getRegistryInfo = done =>
   request(app)
     .get("/npm/main")
     .expect(200, { registry_name: "main" })
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end(done)
 
 const getRegistryInfoMissingRepo = done =>
@@ -17,6 +18,7 @@ const ping = done =>
   request(app)
     .get("/npm/-/ping")
     .expect(200, {})
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end(done)
 
 const loginSuccess = done =>
@@ -24,6 +26,7 @@ const loginSuccess = done =>
     .put("/npm/-/user/org.couchdb.user:tester")
     .send({ name: "tester", password: "test" })
     .expect(201, { ok: true })
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end(done)
 
 const loginWrongPassword = done =>
@@ -31,6 +34,7 @@ const loginWrongPassword = done =>
     .put("/npm/-/user/org.couchdb.user:tester")
     .send({ name: "tester", password: "testWrong" })
     .expect(401, { ok: false })
+    .expect("Content-Type", "application/json; charset=utf-8")
     .end(done)
 
 describe("Registry", () => {
