@@ -10,11 +10,14 @@ const login = (req, res) => {
   const userName = req.params.username
   const { name, password } = req.body
 
-  if (userName !== name) return res.status(401).json({ ok: false })
+  if (userName !== name) {
+    logger.error(`Failed login, username mismatch: ${name} and ${userName}`)
+    return res.status(401).json({ ok: false })
+  }
 
   return user
     .login(name, password)
-    .then(res.status(201).json({ ok: true }))
+    .then(() => res.status(201).json({ ok: true }))
     .catch(() => {
       logger.error(`Failed login: ${name}`)
       res.status(401).json({ ok: false })
