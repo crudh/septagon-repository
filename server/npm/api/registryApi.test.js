@@ -37,6 +37,38 @@ const loginWrongPassword = done =>
     .expect("Content-Type", "application/json; charset=utf-8")
     .end(done)
 
+const loginWrongUserAndWrongButExistingPassword = done =>
+  request(app)
+    .put("/npm/-/user/org.couchdb.user:testerwrong")
+    .send({ name: "testerwrong", password: "test" })
+    .expect(401, { ok: false })
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
+const loginWrongUserAndPassword = done =>
+  request(app)
+    .put("/npm/-/user/org.couchdb.user:testerwrong")
+    .send({ name: "testerwrong", password: "testWrong" })
+    .expect(401, { ok: false })
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
+const loginUserMismatchWrongInBody = done =>
+  request(app)
+    .put("/npm/-/user/org.couchdb.user:tester")
+    .send({ name: "testerwrong", password: "test" })
+    .expect(401, { ok: false })
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
+const loginUserMismatchWrongInPath = done =>
+  request(app)
+    .put("/npm/-/user/org.couchdb.user:testerwrong")
+    .send({ name: "tester", password: "test" })
+    .expect(401, { ok: false })
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
 describe("Registry", () => {
   describe("API", () => {
     describe("Get registry info", () => {
@@ -60,10 +92,22 @@ describe("Registry", () => {
         "should not work to login with a correct username and incorrect password",
         loginWrongPassword
       )
-      it("should not work to login with an incorrect username but existing password", () => {})
-      it("should not work to login with an incorrect username and password", () => {})
-      it("should not work to login with a correct username in the path but incorrect in the body", () => {})
-      it("should not work to login with an incorrect username in the path but correct in the body", () => {})
+      it(
+        "should not work to login with an incorrect username but existing password",
+        loginWrongUserAndWrongButExistingPassword
+      )
+      it(
+        "should not work to login with an incorrect username and password",
+        loginWrongUserAndPassword
+      )
+      it(
+        "should not work to login with a correct username in the path but incorrect in the body",
+        loginUserMismatchWrongInBody
+      )
+      it(
+        "should not work to login with an incorrect username in the path but correct in the body",
+        loginUserMismatchWrongInPath
+      )
     })
   })
 })
