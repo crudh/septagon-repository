@@ -21,7 +21,7 @@ const handleError = (res, err) => {
 const validatorRepoExists = req =>
   new Promise(
     (resolve, reject) =>
-      reposConfig[req.params.repo] ? resolve(200) : reject(404)
+      reposConfig[req.params.repo] ? resolve() : reject(404)
   )
 
 const createValidation = (...validators) => api => (req, res) =>
@@ -29,7 +29,7 @@ const createValidation = (...validators) => api => (req, res) =>
     validators
       .reduce(
         (validatorChain, currentValidator) =>
-          validatorChain.then(() => currentValidator(req, res).then(_ => _)),
+          validatorChain.then(() => currentValidator(req, res)),
         Promise.resolve()
       )
       .then(() => resolve(api(req, res)))
