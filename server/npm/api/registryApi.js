@@ -16,7 +16,7 @@ const login = (req, res) => {
   }
 
   return user
-    .login(name, password)
+    .verifyPassword(name, password)
     .then(() => res.status(201).json({ ok: true }))
     .catch(() => {
       logger.error(`Failed login: ${name}`)

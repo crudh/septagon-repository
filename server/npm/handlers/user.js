@@ -1,7 +1,7 @@
 const config = require("config")
 const { crypto } = require("../../utils/promisified")
 
-const users = config.has("server.users") ? config.get("server.users") : []
+const usersConfig = config.has("server.users") ? config.get("server.users") : {}
 
 const hash = (
   password,
@@ -20,9 +20,9 @@ const hash = (
 // const generateSalt = (length = 64) => new Promise((resolve, reject) =>
 // crypto.randomBytes(length).then(resolve).catch(reject)
 
-const login = (username, password) =>
+const verifyPassword = (username, password) =>
   new Promise((resolve, reject) => {
-    const user = users[username]
+    const user = usersConfig[username]
     if (!user) return reject(new Error("User not found"))
 
     return hash(password, user.salt)
@@ -34,5 +34,5 @@ const login = (username, password) =>
   })
 
 module.exports = {
-  login
+  verifyPassword
 }
