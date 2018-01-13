@@ -2,7 +2,7 @@ const logger = require("winston")
 const {
   createValidation,
   validatorRepoExists
-} = require("./common/api/commonApi")
+} = require("./common/api/requestValidation")
 const npmPackagesAPI = require("./npm/api/packagesApi")
 const npmRegistryAPI = require("./npm/api/registryApi")
 

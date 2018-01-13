@@ -1,7 +1,7 @@
 const config = require("config")
 const request = require("request")
 const logger = require("winston")
-const { handleError } = require("../../common/api/commonApi")
+const { handleError } = require("../../common/api/errorHandling")
 const distFileHandler = require("../handlers/distfile")
 const packageHandler = require("../handlers/package")
 
