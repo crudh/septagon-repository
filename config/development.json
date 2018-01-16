@@ -5,7 +5,7 @@
         "id": "main",
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/development/main",
-        "public": false
+        "public": true
       }
     },
     "log": {

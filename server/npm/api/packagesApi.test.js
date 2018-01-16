@@ -61,6 +61,27 @@ const getMainPackageFileNonexistingRepo = done =>
     .get("/npm/nonexisting/seamless-immutable-mergers")
     .expect(404, done)
 
+const getMainPackageFilePrivateAuthMissing = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers")
+    .expect(401)
+    .end(done)
+
+const getMainPackageFilePrivateAuthBad = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers")
+    .auth("tester", "testWrong")
+    .expect(401)
+    .end(done)
+
+const getMainPackageFilePrivateAuthOk = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers")
+    .auth("tester", "test")
+    .expect(200)
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
 const getVersionedPackageFile = done =>
   request(app)
     .get("/npm/main/seamless-immutable-mergers/5.0.0")
@@ -99,6 +120,27 @@ const getVersionedPackageFileNonexistingRepo = done =>
   request(app)
     .get("/npm/nonexisting/seamless-immutable-mergers/5.0.0")
     .expect(404, done)
+
+const getVersionedPackageFilePrivateAuthMissing = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers/5.0.0")
+    .expect(401)
+    .end(done)
+
+const getVersionedPackageFilePrivateAuthBad = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers/5.0.0")
+    .auth("tester", "testWrong")
+    .expect(401)
+    .end(done)
+
+const getVersionedPackageFilePrivateAuthOk = done =>
+  request(app)
+    .get("/npm/private/seamless-immutable-mergers/5.0.0")
+    .auth("tester", "test")
+    .expect(200)
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
 
 const getPackageDistFile = done =>
   request(app)
@@ -141,6 +183,33 @@ const getPackageDistFileNoUpstream = done =>
     )
     .expect(404, done)
 
+const getPackageDistFilePrivateAuthMissing = done =>
+  request(app)
+    .get(
+      "/npm/private/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
+    )
+    .expect(401)
+    .end(done)
+
+const getPackageDistFilePrivateAuthBad = done =>
+  request(app)
+    .get(
+      "/npm/private/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
+    )
+    .auth("tester", "testWrong")
+    .expect(401)
+    .end(done)
+
+const getPackageDistFilePrivateAuthOk = done =>
+  request(app)
+    .get(
+      "/npm/private/seamless-immutable-mergers/-/seamless-immutable-mergers-5.0.0.tgz"
+    )
+    .auth("tester", "test")
+    .expect(200)
+    .expect("Content-Type", "application/octet-stream")
+    .end(done)
+
 const searchPackageNoUpstream = done =>
   request(app)
     .get("/npm/standalone/-/all")
@@ -166,6 +235,18 @@ describe("Packages", () => {
         "should return 404 if the repo doesn't exist",
         getMainPackageFileNonexistingRepo
       )
+      it(
+        "should return 401 if the repo is private an no auth is provided",
+        getMainPackageFilePrivateAuthMissing
+      )
+      it(
+        "should return 401 if the repo is private an bad auth is provided",
+        getMainPackageFilePrivateAuthBad
+      )
+      it(
+        "should return 200 if the repo is private an ok auth is provided",
+        getMainPackageFilePrivateAuthOk
+      )
     })
 
     describe("Get versioned package file", () => {
@@ -189,6 +270,18 @@ describe("Packages", () => {
         "should return 404 if the repo doesn't exist",
         getVersionedPackageFileNonexistingRepo
       )
+      it(
+        "should return 401 if the repo is private an no auth is provided",
+        getVersionedPackageFilePrivateAuthMissing
+      )
+      it(
+        "should return 401 if the repo is private an bad auth is provided",
+        getVersionedPackageFilePrivateAuthBad
+      )
+      it(
+        "should return 200 if the repo is private an ok auth is provided",
+        getVersionedPackageFilePrivateAuthOk
+      )
     })
 
     describe("Get package dist file", () => {
@@ -208,6 +301,18 @@ describe("Packages", () => {
       it(
         "should return 404 if the repo doesn't exist",
         getPackageDistFileNonexistingRepo
+      )
+      it(
+        "should return 401 if the repo is private an no auth is provided",
+        getPackageDistFilePrivateAuthMissing
+      )
+      it(
+        "should return 401 if the repo is private an bad auth is provided",
+        getPackageDistFilePrivateAuthBad
+      )
+      it(
+        "should return 200 if the repo is private an ok auth is provided",
+        getPackageDistFilePrivateAuthOk
       )
     })
 

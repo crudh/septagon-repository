@@ -1,5 +1,6 @@
 const config = require("config")
 const user = require("../../npm/handlers/user")
+const { getBasicAuth } = require("../../utils/requestUtils")
 const { getErrorMessage } = require("./errorHandling")
 
 const usersConfig = config.has("server.users") ? config.get("server.users") : {}
@@ -19,7 +20,7 @@ const validatorRepoAuth = req =>
 
     if (method === "GET" && repoConfig.public) return resolve()
 
-    const { name, password } = req.body
+    const { name, password } = getBasicAuth(req)
     if (!name || !password || !usersConfig[name]) return reject(401)
     if (!repoConfig.users || !repoConfig.users[name]) return reject(401)
 

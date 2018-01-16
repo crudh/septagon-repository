@@ -5,18 +5,27 @@
         "id": "main",
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/test/main",
-        "public": false
+        "public": true
       },
       "localoverride": {
         "id": "localoverride",
         "upstream": "https://registry.npmjs.org",
         "storage": "./tmp/test/localoverride",
-        "public": false
+        "public": true
       },
       "standalone": {
         "id": "standalone",
         "storage": "./tmp/test/standalone",
-        "public": false
+        "public": true
+      },
+      "private": {
+        "id": "private",
+        "upstream": "https://registry.npmjs.org",
+        "storage": "./tmp/test/private",
+        "public": false,
+        "users": {
+          "tester": "read"
+        }
       }
     },
     "log": {

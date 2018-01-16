@@ -14,6 +14,27 @@ const getRegistryInfoMissingRepo = done =>
     .expect(404)
     .end(done)
 
+const getRegistryInfoPrivateAuthMissing = done =>
+  request(app)
+    .get("/npm/private")
+    .expect(401)
+    .end(done)
+
+const getRegistryInfoPrivateAuthBad = done =>
+  request(app)
+    .get("/npm/private")
+    .auth("tester", "testWrong")
+    .expect(401)
+    .end(done)
+
+const getRegistryInfoPrivateAuthOk = done =>
+  request(app)
+    .get("/npm/private")
+    .auth("tester", "test")
+    .expect(200, { registry_name: "private" })
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
 const ping = done =>
   request(app)
     .get("/npm/-/ping")
@@ -76,6 +97,18 @@ describe("Registry", () => {
       it(
         "should answer with 404 if the repo doesn't exist",
         getRegistryInfoMissingRepo
+      )
+      it(
+        "should answer with 401 if private and no auth provided",
+        getRegistryInfoPrivateAuthMissing
+      )
+      it(
+        "should answer with 401 if private and bad auth provided",
+        getRegistryInfoPrivateAuthBad
+      )
+      it(
+        "should give back basic info if private and ok auth provided",
+        getRegistryInfoPrivateAuthOk
       )
     })
 

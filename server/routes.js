@@ -1,12 +1,13 @@
 const logger = require("winston")
 const {
   createValidation,
-  validatorRepoExists
+  validatorRepoExists,
+  validatorRepoAuth
 } = require("./common/api/requestValidation")
 const npmPackagesAPI = require("./npm/api/packagesApi")
 const npmRegistryAPI = require("./npm/api/registryApi")
 
-const validateRepo = createValidation(validatorRepoExists)
+const validateRepo = createValidation(validatorRepoExists, validatorRepoAuth)
 
 const unhandledUrl = (req, res) => {
   logger.error(`Unhandled URL: ${req.method} ${req.url}`)
