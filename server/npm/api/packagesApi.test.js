@@ -215,6 +215,27 @@ const searchPackageNoUpstream = done =>
     .get("/npm/standalone/-/all")
     .expect(404, done)
 
+const searchPackagePrivateAuthMissing = done =>
+  request(app)
+    .get("/npm/private/-/all")
+    .expect(401)
+    .end(done)
+
+const searchPackagePrivateAuthBad = done =>
+  request(app)
+    .get("/npm/private/-/all")
+    .auth("tester", "testWrong")
+    .expect(401)
+    .end(done)
+
+const searchPackagePrivateAuthOk = done =>
+  request(app)
+    .get("/npm/private/-/all")
+    .auth("tester", "test")
+    .expect(200)
+    .expect("Content-Type", "application/json; charset=utf-8")
+    .end(done)
+
 describe("Packages", () => {
   describe("API", () => {
     describe("Get main package file", () => {
@@ -318,6 +339,18 @@ describe("Packages", () => {
 
     describe("Search for package", () => {
       it("should not work if no upstream is defined", searchPackageNoUpstream)
+      it(
+        "should return 401 if the repo is private an no auth is provided",
+        searchPackagePrivateAuthMissing
+      )
+      it(
+        "should return 401 if the repo is private an bad auth is provided",
+        searchPackagePrivateAuthBad
+      )
+      it(
+        "should return 200 if the repo is private an ok auth is provided",
+        searchPackagePrivateAuthOk
+      )
     })
   })
 })

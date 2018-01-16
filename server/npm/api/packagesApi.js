@@ -64,12 +64,11 @@ const getVersionedPackage = (req, res) => {
 }
 
 const searchPackage = (req, res) => {
-  const repoName = req.params.repo
-  const repo = reposConfig[repoName]
+  const repo = reposConfig[req.params.repo]
 
   return !repo.upstream
     ? handleError(res, { statusCode: 404 })
-    : req.pipe(request(repo.upstream + req.url)).pipe(res)
+    : request(repo.upstream + req.url.replace(/^\/npm\/main/, "")).pipe(res)
 }
 
 module.exports = {

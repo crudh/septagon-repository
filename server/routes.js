@@ -18,7 +18,10 @@ const routes = app => {
   app.get("/npm/-/ping", npmRegistryAPI.ping)
   app.put("/npm/-/user/org.couchdb.user\\::username", npmRegistryAPI.login)
   app.get("/npm/:repo", validateRepo(npmRegistryAPI.getRegistryInfo))
-  app.get("/npm/:repo/-/all*", validateRepo(npmPackagesAPI.searchPackage))
+  app.get(
+    "/npm/:repo/-/v1/search?*",
+    validateRepo(npmPackagesAPI.searchPackage)
+  )
   app.get("/npm/:repo/:name", validateRepo(npmPackagesAPI.getMainPackage))
   app.get(
     "/npm/:repo/:name/:version",
