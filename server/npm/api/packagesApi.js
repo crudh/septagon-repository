@@ -13,7 +13,7 @@ const getDistFile = (req, res) => {
   const distFile = req.params.distFile
   logger.info(`Fetching distfile for package ${name} (${req.originalUrl})`)
 
-  distFileHandler
+  return distFileHandler
     .getDistFile(reposConfig[repo], name, distFile)
     .then(stream => {
       res.set("Content-Type", "application/octet-stream")
@@ -33,7 +33,7 @@ const getMainPackage = (req, res) => {
   const name = req.params.name
   logger.info(`Fetching package ${name} (${req.originalUrl})`)
 
-  packageHandler
+  return packageHandler
     .getMainPackage(reposConfig[repo], name)
     .then(stream => {
       res.set("Content-Type", "application/json")
@@ -51,7 +51,7 @@ const getVersionedPackage = (req, res) => {
   const version = req.params.version
   logger.info(`Fetching package ${name}@${version} (${req.originalUrl})`)
 
-  packageHandler
+  return packageHandler
     .getVersionedPackage(reposConfig[repo], name, version)
     .then(stream => {
       res.set("Content-Type", "application/json")
