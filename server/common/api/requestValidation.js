@@ -1,4 +1,5 @@
 const config = require("config")
+const validateNpmPackageName = require("validate-npm-package-name")
 const user = require("../../npm/handlers/user")
 const { getBasicAuth } = require("../../utils/requestUtils")
 const { getErrorMessage } = require("./errorHandling")
@@ -33,7 +34,24 @@ const validatorRepoAuth = req =>
       .catch(() => reject(401))
   })
 
-const createValidation = (...validators) => api => (req, res) =>
+const createValidatorNpmPackageName = (
+  paramName,
+  allowOldStyle = true
+) => req =>
+  new Promise((resolve, reject) => {
+    const packageName = req.params[paramName]
+    if (!packageName) return reject(400)
+
+    const { validForNewPackages, validForOldPackages } = validateNpmPackageName(
+      packageName
+    )
+
+    return validForNewPackages || (allowOldStyle && validForOldPackages)
+      ? resolve()
+      : reject(400)
+  })
+
+const addValidation = (validators, api) => (req, res) =>
   new Promise(resolve =>
     validators
       .reduce(
@@ -52,5 +70,6 @@ const createValidation = (...validators) => api => (req, res) =>
 module.exports = {
   validatorRepoExists,
   validatorRepoAuth,
-  createValidation
+  createValidatorNpmPackageName,
+  addValidation
 }

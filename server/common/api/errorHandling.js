@@ -1,5 +1,7 @@
 const getErrorMessage = statusCode => {
   switch (statusCode) {
+    case 400:
+      return "bad request"
     case 401:
       return "not authorized"
     case 404:
