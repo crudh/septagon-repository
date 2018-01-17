@@ -3,7 +3,8 @@ const {
   addValidation,
   validatorRepoExists,
   validatorRepoAuth,
-  createValidatorNpmPackageName
+  createValidatorNpmPackageName,
+  createValidatorFileName
 } = require("./common/api/requestValidation")
 const npmPackagesAPI = require("./npm/api/packagesApi")
 const npmRegistryAPI = require("./npm/api/registryApi")
@@ -57,6 +58,7 @@ const routes = app => {
     addValidation(
       [
         createValidatorNpmPackageName("name"),
+        createValidatorFileName("distFile"),
         validatorRepoExists,
         validatorRepoAuth
       ],

@@ -1,4 +1,5 @@
 const config = require("config")
+const validFilename = require("valid-filename")
 const validateNpmPackageName = require("validate-npm-package-name")
 const user = require("../../npm/handlers/user")
 const { getBasicAuth } = require("../../utils/requestUtils")
@@ -33,6 +34,12 @@ const validatorRepoAuth = req =>
       .then(resolve)
       .catch(() => reject(401))
   })
+
+const createValidatorFileName = paramName => req =>
+  new Promise(
+    (resolve, reject) =>
+      validFilename(req.params[paramName]) ? resolve() : reject(400)
+  )
 
 const createValidatorNpmPackageName = (
   paramName,
@@ -71,5 +78,6 @@ module.exports = {
   validatorRepoExists,
   validatorRepoAuth,
   createValidatorNpmPackageName,
+  createValidatorFileName,
   addValidation
 }
