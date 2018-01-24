@@ -32,12 +32,8 @@ class TarballReplacer extends Transform {
 
 const getFileName = (name, version) => (version ? `${name}-${version}` : name)
 
-const getUpstreamUrl = (repo, name, version) => {
-  const baseUrl = `${repo.upstream}/${name}`
-  if (!version) return baseUrl
-
-  return `${baseUrl}/${version}`
-}
+const getUpstreamUrl = (repo, name, version) =>
+  `${repo.upstream}/${name}${version ? `/${version}` : ""}`
 
 const streamPackage = (repo, path) =>
   createReadStream(path)
