@@ -51,11 +51,11 @@ const emptyRepoConfig = {
 describe("Validate config", () => {
   describe("Server config", () => {
     it("should validate an empty config with all errors", () => {
-      expect(validateServerConfig({}).length).toEqual(14)
+      expect(validateServerConfig({}).length).toEqual(9)
     })
 
     it("should validate an empty repo with all errors", () => {
-      expect(validateServerConfig(emptyRepoConfig.server).length).toEqual(5)
+      expect(validateServerConfig(emptyRepoConfig.server).length).toEqual(4)
     })
 
     it("should validate incomplete user with all errors", () => {
