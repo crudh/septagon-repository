@@ -1,6 +1,8 @@
 const _getOr = require("lodash/fp/getOr")
+const _has = require("lodash/fp/has")
 const _isFinite = require("lodash/fp/isFinite")
 const _isPlainObject = require("lodash/fp/isPlainObject")
+const _last = require("lodash/fp/last")
 
 const isSet = () => (key, value) =>
   value !== null && value !== undefined ? "" : `${key}: should be set`
@@ -24,6 +26,11 @@ const hasChild = () => (key, value) =>
   Object.keys(value || {}).length > 0
     ? ""
     : `${key}: should have at least one child`
+
+const hasRequiredPathInConfig = requiredPath => (key, value, config) =>
+  _has(requiredPath, config)
+    ? ""
+    : `${key}: required path is not set at ${requiredPath}`
 
 const runChecks = (config, ...checks) =>
   checks.reduce(
@@ -52,7 +59,14 @@ const validateServerConfig = config =>
     ...createChildrenChecks(config, "repos", (key, childKey) => [
       [`${key}.id`, isSet(), isEqual(childKey)],
       [`${key}.storage`, isSet()],
-      [`${key}.public`, isSet(), isBoolean()]
+      [`${key}.public`, isSet(), isBoolean()],
+      ...createChildrenChecks(config, `repos.${childKey}.users`, key => [
+        [
+          `${key}`,
+          isAny("read", "write"),
+          hasRequiredPathInConfig(`users.${_last(key.split("."))}`)
+        ]
+      ])
     ]),
     ["log", isSet(), isObject()],
     ["users", isSet(), isObject()],

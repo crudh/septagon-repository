@@ -12,7 +12,10 @@ const defaultConfig = {
         id: "main",
         upstream: "https://registry.npmjs.org",
         storage: "./tmp/testRepository",
-        public: false
+        public: false,
+        users: {
+          c: "write"
+        }
       },
       standalone: {
         id: "standalone",
@@ -62,6 +65,36 @@ describe("Validate config", () => {
           users: { c: {} }
         }).length
       ).toEqual(2)
+    })
+
+    it("should validate missing user for repo with all errors", () => {
+      expect(
+        validateServerConfig({
+          ...defaultConfig.server,
+          repos: {
+            ...defaultConfig.server.repos,
+            main: {
+              ...defaultConfig.server.repos.main,
+              users: { d: "read" }
+            }
+          }
+        }).length
+      ).toEqual(1)
+    })
+
+    it("should validate invalid access level for repo user with all errors", () => {
+      expect(
+        validateServerConfig({
+          ...defaultConfig.server,
+          repos: {
+            ...defaultConfig.server.repos,
+            main: {
+              ...defaultConfig.server.repos.main,
+              users: { c: "invalid" }
+            }
+          }
+        }).length
+      ).toEqual(1)
     })
 
     it("should validate a correct file without errors", () => {
