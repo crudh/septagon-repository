@@ -5,31 +5,44 @@ const _isPlainObject = require("lodash/fp/isPlainObject")
 const _isString = require("lodash/fp/isstring")
 const _last = require("lodash/fp/last")
 
+const notSet = value => value === null || value === undefined
+
+const isSet = () => (key, value) =>
+  !notSet(value) ? "" : `${key}: should be set`
+
 const isAny = (...options) => (key, value) =>
-  options.includes(value) ? "" : `${key}: should be any of [${options}]`
+  notSet(value) || options.includes(value)
+    ? ""
+    : `${key}: should be any of [${options}]`
 
 const isEqual = otherValue => (key, value) =>
-  value === otherValue ? "" : `${key}: should match ${otherValue}`
+  notSet(value) || value === otherValue
+    ? ""
+    : `${key}: should match ${otherValue}`
 
 const isObject = () => (key, value) =>
-  _isPlainObject(value) ? "" : `${key}: should be an object`
+  notSet(value) || _isPlainObject(value) ? "" : `${key}: should be an object`
 
 const isString = () => (key, value) =>
-  _isString(value) ? "" : `${key}: should be a string`
+  notSet(value) || _isString(value) ? "" : `${key}: should be a string`
 
 const isNumber = () => (key, value) =>
-  _isFinite(parseInt(value, 10)) ? "" : `${key}: should be a number`
+  notSet(value) || _isFinite(parseInt(value, 10))
+    ? ""
+    : `${key}: should be a number`
 
 const isBoolean = () => (key, value) =>
-  value === true || value === false ? "" : `${key}: should be a boolean`
+  notSet(value) || value === true || value === false
+    ? ""
+    : `${key}: should be a boolean`
 
 const hasChild = () => (key, value) =>
-  Object.keys(value || {}).length > 0
+  notSet(value) || Object.keys(value || {}).length > 0
     ? ""
     : `${key}: should have at least one child`
 
 const hasRequiredPathInConfig = requiredPath => (key, value, config) =>
-  _has(requiredPath, config)
+  notSet(value) || _has(requiredPath, config)
     ? ""
     : `${key}: required path is not set at ${requiredPath}`
 
@@ -52,15 +65,15 @@ const createChildrenChecks = (config, parentKey, checkFunc) =>
 const validateServerConfig = config =>
   runChecks(
     config,
-    ["location", isObject()],
-    ["location.protocol", isString(), isAny("http")],
-    ["location.host", isString()],
-    ["location.port", isNumber()],
-    ["repos", isObject(), hasChild()],
+    ["location", isSet(), isObject()],
+    ["location.protocol", isSet(), isString(), isAny("http", "https")],
+    ["location.host", isSet(), isString()],
+    ["location.port", isSet(), isNumber()],
+    ["repos", isSet(), isObject(), hasChild()],
     ...createChildrenChecks(config, "repos", (key, childKey) => [
-      [`${key}.id`, isString(), isEqual(childKey)],
-      [`${key}.storage`, isString()],
-      [`${key}.public`, isBoolean()],
+      [`${key}.id`, isSet(), isString(), isEqual(childKey)],
+      [`${key}.storage`, isSet(), isString()],
+      [`${key}.public`, isSet(), isBoolean()],
       ...createChildrenChecks(config, `repos.${childKey}.users`, key => [
         [
           `${key}`,
@@ -70,11 +83,11 @@ const validateServerConfig = config =>
         ]
       ])
     ]),
-    ["log", isObject()],
-    ["users", isObject()],
+    ["log", isSet(), isObject()],
+    ["users", isSet(), isObject()],
     ...createChildrenChecks(config, "users", key => [
-      [`${key}.salt`, isString()],
-      [`${key}.hash`, isString()]
+      [`${key}.salt`, isSet(), isString()],
+      [`${key}.hash`, isSet(), isString()]
     ])
   )
 
