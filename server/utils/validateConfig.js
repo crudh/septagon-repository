@@ -10,6 +10,11 @@ const notSet = value => value === null || value === undefined
 const isSet = () => (key, value) =>
   !notSet(value) ? "" : `${key}: should be set`
 
+const isSetIfPathHasValue = (path, pathValue) => (key, value, config) =>
+  !(_getOr(null, path, config) === pathValue && notSet(value))
+    ? ""
+    : `${key}: should be set if path ${path} has value ${pathValue}`
+
 const isAny = (...options) => (key, value) =>
   notSet(value) || options.includes(value)
     ? ""
@@ -66,9 +71,26 @@ const validateServerConfig = config =>
   runChecks(
     config,
     ["location", isSet(), isObject()],
-    ["location.protocol", isSet(), isString(), isAny("http", "https")],
     ["location.host", isSet(), isString()],
     ["location.port", isSet(), isNumber()],
+    ["location.protocol", isSet(), isString(), isAny("http", "https")],
+    [
+      "location.https",
+      isSetIfPathHasValue("location.protocol", "https"),
+      isObject()
+    ],
+    [
+      "location.https.key",
+      isSetIfPathHasValue("location.protocol", "https"),
+      isString()
+    ],
+    [
+      "location.https.cert",
+      isSetIfPathHasValue("location.protocol", "https"),
+      isString()
+    ],
+    ["location.https.ca", isString()],
+    ["location.https.passphrase", isString()],
     ["repos", isSet(), isObject(), hasChild()],
     ...createChildrenChecks(config, "repos", (key, childKey) => [
       [`${key}.id`, isSet(), isString(), isEqual(childKey)],
