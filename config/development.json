@@ -10,7 +10,7 @@
     },
     "log": {
       "console": {
-        "level": "error"
+        "level": "info"
       }
     },
     "users": {

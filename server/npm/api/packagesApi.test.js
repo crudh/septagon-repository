@@ -355,4 +355,4 @@ describe("Packages", () => {
   })
 })
 
-afterAll(() => server.close())
+afterAll(done => server.close(done))
