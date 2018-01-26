@@ -11,14 +11,6 @@ const createError = (message, source) => {
   return error
 }
 
-const printError = error => {
-  console.warn("Error!")
-  !error.message && !error.source && console.warn(`Error: ${error}`)
-
-  error.message && console.warn(error.message)
-  error.source && console.warn(error.source)
-}
-
 const checkFileExists = filePath =>
   new Promise((resolve, reject) =>
     fs
@@ -47,6 +39,14 @@ const convertToJson = text => new Promise(resolve => resolve(JSON.parse(text)))
 
 const convertToText = data =>
   new Promise(resolve => resolve(JSON.stringify(data, null, 2)))
+
+const commandFailed = error => {
+  console.warn("Error!")
+  !error.message && !error.source && console.warn(`Error: ${error}`)
+
+  error.message && console.warn(error.message)
+  error.source && console.warn(error.source)
+}
 
 const commandCompleted = () =>
   console.info(
@@ -81,7 +81,33 @@ const createUser = (configfile, username, password) =>
         )
       )
     })
-    .catch(printError)
+    .catch(commandFailed)
+
+/* eslint "no-unused-vars": "off" */
+const deleteUser = (configfile, username) =>
+  checkFileExists(configfile)
+    .then(readFile)
+    .then(convertToJson)
+    .then(config => {
+      if (!(config.server.users || {})[username])
+        throw createError("Username doesn't exist")
+
+      // FIXME check that the user isn't added to any repo! then fail
+
+      const { [username]: userToRemove, ...remainingUsers } =
+        config.server.users || {}
+
+      convertToText({
+        ...config,
+        server: {
+          ...config.server,
+          users: remainingUsers
+        }
+      })
+        .then(configContent => writeFile(configfile, configContent))
+        .then(commandCompleted)
+    })
+    .catch(commandFailed)
 
 program
   .command("createuser <configfile> <username> <password>")
@@ -91,7 +117,7 @@ program
 program
   .command("deleteuser <configfile> <username>")
   .description("Delete a user")
-  .action(() => {})
+  .action(deleteUser)
 
 program
   .command("changepassword <configfile> <username> <password>")
