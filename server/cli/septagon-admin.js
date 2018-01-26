@@ -4,7 +4,12 @@ const program = require("commander")
 const { fs } = require("../utils/promisified")
 const { hashPassword, generateSalt } = require("../utils/password")
 
-const createError = (message, source) => ({ message, source })
+const createError = (message, source) => {
+  const error = new Error(message)
+  error.source = source
+
+  return error
+}
 
 const printError = error => {
   console.warn("Error!")
@@ -44,13 +49,18 @@ const convertToText = data =>
   new Promise(resolve => resolve(JSON.stringify(data, null, 2)))
 
 const commandCompleted = () =>
-  console.info("Success! Remember to restart the server")
+  console.info(
+    "Success! Remember to restart the server to activate the changes"
+  )
 
-const createUser = (configfile, username, password) => {
+const createUser = (configfile, username, password) =>
   checkFileExists(configfile)
     .then(readFile)
     .then(convertToJson)
-    .then(config =>
+    .then(config => {
+      if ((config.server.users || {})[username])
+        throw createError("Username already exists")
+
       generateSalt().then(salt =>
         hashPassword(password, salt).then(hash =>
           convertToText({
@@ -58,7 +68,7 @@ const createUser = (configfile, username, password) => {
             server: {
               ...config.server,
               users: {
-                ...config.server.users,
+                ...(config.server.users || {}),
                 [username]: {
                   hash,
                   salt
@@ -70,14 +80,34 @@ const createUser = (configfile, username, password) => {
             .then(commandCompleted)
         )
       )
-    )
+    })
     .catch(printError)
-}
 
 program
   .command("createuser <configfile> <username> <password>")
   .description("Create a user and set password")
   .action(createUser)
+
+program
+  .command("deleteuser <configfile> <username>")
+  .description("Delete a user")
+  .action(() => {})
+
+program
+  .command("changepassword <configfile> <username> <password>")
+  .description("Change password for a user")
+  // FIXME keep salt
+  .action(() => {})
+
+program
+  .command("adduser <configfile> <repo> <username> <accesslevel>")
+  .description("Add an existing user to a repo")
+  .action(() => {})
+
+program
+  .command("removeuser <configfile> <repo> <username>")
+  .description("Remove a user from a repo")
+  .action(() => {})
 
 program.parse(process.argv)
 console.log("")
