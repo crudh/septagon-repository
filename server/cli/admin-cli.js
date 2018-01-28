@@ -48,18 +48,58 @@ const checkConfig = config =>
         : reject(createError("Not a valid config file"))
   )
 
-const commandFailed = error => {
-  console.warn("Error!")
-  !error.message && !error.source && console.warn(`Error: ${error}`)
+const checkConfigRepo = (config, repo) =>
+  new Promise(
+    (resolve, reject) =>
+      config.server.repos && config.server.repos[repo]
+        ? resolve(config)
+        : reject(createError("Repo not found"))
+  )
 
-  error.message && console.warn(error.message)
-  error.source && console.warn(error.source)
+const commandFailed = error => {
+  !error.message && !error.source && console.error(`Error: ${error}`)
+
+  error.message && console.error(`Error: ${error.message}`)
+  error.source && console.error(`Source: ${error.source}`)
 }
 
 const commandCompleted = () =>
   console.info(
     "Success! Remember to restart the server to activate the changes"
   )
+
+const listUsersAll = config =>
+  new Promise(resolve => {
+    Object.keys(config.server.users || {}).forEach(username =>
+      console.info(username)
+    )
+
+    resolve()
+  })
+
+const listUsersRepo = (config, repo) =>
+  new Promise(resolve => {
+    Object.entries(config.server.repos[repo].users || {}).forEach(
+      ([username, accesslevel]) => console.info(`${username} (${accesslevel})`)
+    )
+
+    resolve()
+  })
+
+const listUsers = (configfile, repo) =>
+  checkFileExists(configfile)
+    .then(readFile)
+    .then(convertToJson)
+    .then(checkConfig)
+    .then(
+      config =>
+        repo
+          ? checkConfigRepo(config, repo).then(() =>
+              listUsersRepo(config, repo)
+            )
+          : listUsersAll(config)
+    )
+    .catch(commandFailed)
 
 const createUser = (configfile, username, password) =>
   checkFileExists(configfile)
@@ -120,6 +160,11 @@ const deleteUser = (configfile, username) =>
     .catch(commandFailed)
 
 program
+  .command("listusers <configfile> [repo]")
+  .description("List all users or, if repo is specified, the users of the repo")
+  .action(listUsers)
+
+program
   .command("createuser <configfile> <username> <password>")
   .description("Create a user and set password")
   .action(createUser)
@@ -146,4 +191,3 @@ program
   .action(() => {})
 
 program.parse(process.argv)
-console.log("")
