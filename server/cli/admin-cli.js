@@ -40,6 +40,14 @@ const convertToJson = text => new Promise(resolve => resolve(JSON.parse(text)))
 const convertToText = data =>
   new Promise(resolve => resolve(JSON.stringify(data, null, 2)))
 
+const checkConfig = config =>
+  new Promise(
+    (resolve, reject) =>
+      config && config.server
+        ? resolve(config)
+        : reject(createError("Not a valid config file"))
+  )
+
 const commandFailed = error => {
   console.warn("Error!")
   !error.message && !error.source && console.warn(`Error: ${error}`)
@@ -57,6 +65,7 @@ const createUser = (configfile, username, password) =>
   checkFileExists(configfile)
     .then(readFile)
     .then(convertToJson)
+    .then(checkConfig)
     .then(config => {
       if ((config.server.users || {})[username])
         throw createError("Username already exists")
@@ -88,6 +97,7 @@ const deleteUser = (configfile, username) =>
   checkFileExists(configfile)
     .then(readFile)
     .then(convertToJson)
+    .then(checkConfig)
     .then(config => {
       if (!(config.server.users || {})[username])
         throw createError("Username doesn't exist")
