@@ -35,6 +35,14 @@ const checkConfigUser = (config, username) =>
         : reject(createError("Username doesn't exist"))
   )
 
+const checkConfigNoSuchUser = (config, username) =>
+  new Promise(
+    (resolve, reject) =>
+      !(config.server.users || {})[username]
+        ? resolve(config)
+        : reject(createError("Username already exists"))
+  )
+
 const checkConfigUserInRepo = (config, repo, username) =>
   new Promise(
     (resolve, reject) =>
@@ -130,11 +138,8 @@ const createUser = (configfile, username, password) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
-    .then(config => {
-      // FIXME should be a check function
-      if ((config.server.users || {})[username])
-        throw createError("Username already exists")
-
+    .then(config => checkConfigNoSuchUser(config, username))
+    .then(config =>
       generateSalt().then(salt =>
         hashPassword(password, salt).then(hash =>
           convertToText({
@@ -154,7 +159,7 @@ const createUser = (configfile, username, password) =>
             .then(commandCompleted)
         )
       )
-    })
+    )
     .catch(commandFailed)
 
 const deleteUser = (configfile, username) =>
