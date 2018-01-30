@@ -11,14 +11,6 @@ const createError = (message, source) => {
   return error
 }
 
-const checkFileExists = filePath =>
-  new Promise((resolve, reject) =>
-    fs
-      .stat(filePath)
-      .then(() => resolve(filePath))
-      .catch(e => reject(createError(`File not found: '${filePath}'`, e)))
-  )
-
 const checkConfig = config =>
   new Promise(
     (resolve, reject) =>
@@ -57,6 +49,14 @@ const checkAccessLevel = accessLevel =>
       ["read", "write"].includes(accessLevel)
         ? resolve()
         : reject(createError("Unknown accesslevel"))
+  )
+
+const checkFileExists = filePath =>
+  new Promise((resolve, reject) =>
+    fs
+      .stat(filePath)
+      .then(() => resolve(filePath))
+      .catch(e => reject(createError(`File not found: '${filePath}'`, e)))
   )
 
 const readFile = filePath =>
@@ -157,7 +157,6 @@ const createUser = (configfile, username, password) =>
     })
     .catch(commandFailed)
 
-/* eslint "no-unused-vars": "off" */
 const deleteUser = (configfile, username) =>
   checkFileExists(configfile)
     .then(readFile)
