@@ -35,6 +35,14 @@ const checkConfigUser = (config, username) =>
         : reject(createError("Username doesn't exist"))
   )
 
+const checkConfigNoSuchUser = (config, username) =>
+  new Promise(
+    (resolve, reject) =>
+      !(config.server.users || {})[username]
+        ? resolve(config)
+        : reject(createError("Username already exists"))
+  )
+
 const checkConfigUserInRepo = (config, repo, username) =>
   new Promise(
     (resolve, reject) =>
@@ -42,6 +50,23 @@ const checkConfigUserInRepo = (config, repo, username) =>
         ? resolve(config)
         : reject(createError("User is not added to the specified repo"))
   )
+
+const checkConfigUserInNoRepo = (config, username) =>
+  new Promise((resolve, reject) => {
+    const userRepos = Object.values(config.server.repos).filter(
+      repo => repo.users && repo.users.hasOwnProperty(username)
+    )
+
+    userRepos.length === 0
+      ? resolve(config)
+      : reject(
+          createError(
+            `User is added to the following repos: ${userRepos
+              .map(repo => repo.id)
+              .join(", ")}`
+          )
+        )
+  })
 
 const checkAccessLevel = accessLevel =>
   new Promise(
@@ -130,11 +155,8 @@ const createUser = (configfile, username, password) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
-    .then(config => {
-      // FIXME should be a check function
-      if ((config.server.users || {})[username])
-        throw createError("Username already exists")
-
+    .then(config => checkConfigNoSuchUser(config, username))
+    .then(config =>
       generateSalt().then(salt =>
         hashPassword(password, salt).then(hash =>
           convertToText({
@@ -154,7 +176,7 @@ const createUser = (configfile, username, password) =>
             .then(commandCompleted)
         )
       )
-    })
+    )
     .catch(commandFailed)
 
 const deleteUser = (configfile, username) =>
@@ -163,7 +185,7 @@ const deleteUser = (configfile, username) =>
     .then(convertToJson)
     .then(checkConfig)
     .then(config => checkConfigUser(config, username))
-    // FIXME check that the user isn't added to any repo! then fail!
+    .then(config => checkConfigUserInNoRepo(config, username))
     .then(config => {
       const { [username]: userToRemove, ...remainingUsers } =
         config.server.users || {}
@@ -207,8 +229,9 @@ const changePassword = (configfile, username, password) =>
         )
       )
     )
+    .catch(commandFailed)
 
-const addUser = (configfile, repo, username, accesslevel) =>
+const addUser = (configfile, username, repo, accesslevel) =>
   checkAccessLevel(accesslevel)
     .then(() => checkFileExists(configfile))
     .then(readFile)
@@ -238,7 +261,7 @@ const addUser = (configfile, repo, username, accesslevel) =>
     )
     .catch(commandFailed)
 
-const removeUser = (configfile, repo, username) =>
+const removeUser = (configfile, username, repo) =>
   checkFileExists(configfile)
     .then(readFile)
     .then(convertToJson)
@@ -289,12 +312,12 @@ program
   .action(changePassword)
 
 program
-  .command("adduser <configfile> <repo> <username> <accesslevel>")
+  .command("adduser <configfile> <username> <repo> <accesslevel>")
   .description("Add an existing user to a repo")
   .action(addUser)
 
 program
-  .command("removeuser <configfile> <repo> <username>")
+  .command("removeuser <configfile> <username> <repo>")
   .description("Remove a user from a repo")
   .action(removeUser)
 
