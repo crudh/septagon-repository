@@ -207,6 +207,7 @@ const changePassword = (configfile, username, password) =>
         )
       )
     )
+    .catch(commandFailed)
 
 const addUser = (configfile, repo, username, accesslevel) =>
   checkAccessLevel(accesslevel)
