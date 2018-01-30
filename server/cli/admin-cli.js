@@ -180,6 +180,34 @@ const deleteUser = (configfile, username) =>
     })
     .catch(commandFailed)
 
+const changePassword = (configfile, username, password) =>
+  checkFileExists(configfile)
+    .then(readFile)
+    .then(convertToJson)
+    .then(checkConfig)
+    .then(config => checkConfigUser(config, username))
+    .then(config =>
+      generateSalt().then(salt =>
+        hashPassword(password, salt).then(hash =>
+          convertToText({
+            ...config,
+            server: {
+              ...config.server,
+              users: {
+                ...(config.server.users || {}),
+                [username]: {
+                  hash,
+                  salt
+                }
+              }
+            }
+          })
+            .then(configContent => writeFile(configfile, configContent))
+            .then(commandCompleted)
+        )
+      )
+    )
+
 const addUser = (configfile, repo, username, accesslevel) =>
   checkAccessLevel(accesslevel)
     .then(() => checkFileExists(configfile))
@@ -258,7 +286,7 @@ program
 program
   .command("changepassword <configfile> <username> <password>")
   .description("Change password for a user")
-  .action(() => {})
+  .action(changePassword)
 
 program
   .command("adduser <configfile> <repo> <username> <accesslevel>")
