@@ -51,6 +51,23 @@ const checkConfigUserInRepo = (config, repo, username) =>
         : reject(createError("User is not added to the specified repo"))
   )
 
+const checkConfigUserInNoRepo = (config, username) =>
+  new Promise((resolve, reject) => {
+    const userRepos = Object.values(config.server.repos).filter(
+      repo => repo.users && repo.users.hasOwnProperty(username)
+    )
+
+    userRepos.length === 0
+      ? resolve(config)
+      : reject(
+          createError(
+            `User is added to the following repos: ${userRepos
+              .map(repo => repo.id)
+              .join(", ")}`
+          )
+        )
+  })
+
 const checkAccessLevel = accessLevel =>
   new Promise(
     (resolve, reject) =>
@@ -168,7 +185,7 @@ const deleteUser = (configfile, username) =>
     .then(convertToJson)
     .then(checkConfig)
     .then(config => checkConfigUser(config, username))
-    // FIXME check that the user isn't added to any repo! then fail!
+    .then(config => checkConfigUserInNoRepo(config, username))
     .then(config => {
       const { [username]: userToRemove, ...remainingUsers } =
         config.server.users || {}
