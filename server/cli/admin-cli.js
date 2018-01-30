@@ -22,7 +22,7 @@ const checkFileExists = filePath =>
 const checkConfig = config =>
   new Promise(
     (resolve, reject) =>
-      config && config.server
+      config && config.server && config.server.repos
         ? resolve(config)
         : reject(createError("Not a valid config file"))
   )
