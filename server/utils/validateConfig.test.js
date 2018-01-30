@@ -51,7 +51,7 @@ const emptyRepoConfig = {
 describe("Validate config", () => {
   describe("Server config", () => {
     it("should validate an empty config with all errors", () => {
-      expect(validateServerConfig({}).length).toEqual(7)
+      expect(validateServerConfig({}).length).toEqual(6)
     })
 
     it("should validate an empty repo with all errors", () => {

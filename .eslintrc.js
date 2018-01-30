@@ -13,6 +13,7 @@ module.exports = {
     jest: true
   },
   rules: {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "no-unused-vars": ["error", { ignoreRestSiblings: true }]
   }
 }

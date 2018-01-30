@@ -106,7 +106,7 @@ const validateServerConfig = config =>
       ])
     ]),
     ["log", isSet(), isObject()],
-    ["users", isSet(), isObject()],
+    ["users", isObject()],
     ...createChildrenChecks(config, "users", key => [
       [`${key}.salt`, isSet(), isString()],
       [`${key}.hash`, isSet(), isString()]
