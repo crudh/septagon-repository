@@ -231,7 +231,7 @@ const changePassword = (configfile, username, password) =>
     )
     .catch(commandFailed)
 
-const addUser = (configfile, repo, username, accesslevel) =>
+const addUser = (configfile, username, repo, accesslevel) =>
   checkAccessLevel(accesslevel)
     .then(() => checkFileExists(configfile))
     .then(readFile)
@@ -261,7 +261,7 @@ const addUser = (configfile, repo, username, accesslevel) =>
     )
     .catch(commandFailed)
 
-const removeUser = (configfile, repo, username) =>
+const removeUser = (configfile, username, repo) =>
   checkFileExists(configfile)
     .then(readFile)
     .then(convertToJson)
@@ -312,12 +312,12 @@ program
   .action(changePassword)
 
 program
-  .command("adduser <configfile> <repo> <username> <accesslevel>")
+  .command("adduser <configfile> <username> <repo> <accesslevel>")
   .description("Add an existing user to a repo")
   .action(addUser)
 
 program
-  .command("removeuser <configfile> <repo> <username>")
+  .command("removeuser <configfile> <username> <repo>")
   .description("Remove a user from a repo")
   .action(removeUser)
 
