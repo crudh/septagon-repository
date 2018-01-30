@@ -43,6 +43,14 @@ const checkConfigUserExists = (config, username) =>
         : reject(createError("Username doesn't exist"))
   )
 
+const checkConfigUserExistsInRepo = (config, repo, username) =>
+  new Promise(
+    (resolve, reject) =>
+      (config.server.repos[repo].users || {})[username]
+        ? resolve(config)
+        : reject(createError("User is not added to the specified repo"))
+  )
+
 const checkAccessLevel = accessLevel =>
   new Promise(
     (resolve, reject) =>
@@ -180,7 +188,7 @@ const addUser = (configfile, repo, username, accesslevel) =>
     .then(checkConfig)
     .then(config => checkConfigUserExists(config, username))
     .then(config => checkConfigRepo(config, repo))
-    .then(config => {
+    .then(config =>
       convertToText({
         ...config,
         server: {
@@ -193,6 +201,36 @@ const addUser = (configfile, repo, username, accesslevel) =>
                 ...(config.server.repos[repo].users || {}),
                 [username]: accesslevel
               }
+            }
+          }
+        }
+      })
+        .then(configContent => writeFile(configfile, configContent))
+        .then(commandCompleted)
+    )
+    .catch(commandFailed)
+
+const removeUser = (configfile, repo, username) =>
+  checkFileExists(configfile)
+    .then(readFile)
+    .then(convertToJson)
+    .then(checkConfig)
+    .then(config => checkConfigUserExists(config, username))
+    .then(config => checkConfigRepo(config, repo))
+    .then(config => checkConfigUserExistsInRepo(config, repo, username))
+    .then(config => {
+      const { [username]: userToRemove, ...remainingUsers } =
+        config.server.repos[repo].users || {}
+
+      convertToText({
+        ...config,
+        server: {
+          ...config.server,
+          repos: {
+            ...config.server.repos,
+            [repo]: {
+              ...config.server.repos[repo],
+              users: remainingUsers
             }
           }
         }
@@ -231,6 +269,6 @@ program
 program
   .command("removeuser <configfile> <repo> <username>")
   .description("Remove a user from a repo")
-  .action(() => {})
+  .action(removeUser)
 
 program.parse(process.argv)
