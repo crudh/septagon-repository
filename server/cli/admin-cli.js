@@ -19,6 +19,38 @@ const checkFileExists = filePath =>
       .catch(e => reject(createError(`File not found: '${filePath}'`, e)))
   )
 
+const checkConfig = config =>
+  new Promise(
+    (resolve, reject) =>
+      config && config.server
+        ? resolve(config)
+        : reject(createError("Not a valid config file"))
+  )
+
+const checkConfigRepo = (config, repo) =>
+  new Promise(
+    (resolve, reject) =>
+      config.server.repos && config.server.repos[repo]
+        ? resolve(config)
+        : reject(createError("Repo not found"))
+  )
+
+const checkConfigUserExists = (config, username) =>
+  new Promise(
+    (resolve, reject) =>
+      (config.server.users || {})[username]
+        ? resolve(config)
+        : reject(createError("Username doesn't exist"))
+  )
+
+const checkAccessLevel = accessLevel =>
+  new Promise(
+    (resolve, reject) =>
+      ["read", "write"].includes(accessLevel)
+        ? resolve()
+        : reject(createError("Unknown accesslevel"))
+  )
+
 const readFile = filePath =>
   new Promise((resolve, reject) =>
     fs
@@ -39,22 +71,6 @@ const convertToJson = text => new Promise(resolve => resolve(JSON.parse(text)))
 
 const convertToText = data =>
   new Promise(resolve => resolve(JSON.stringify(data, null, 2)))
-
-const checkConfig = config =>
-  new Promise(
-    (resolve, reject) =>
-      config && config.server
-        ? resolve(config)
-        : reject(createError("Not a valid config file"))
-  )
-
-const checkConfigRepo = (config, repo) =>
-  new Promise(
-    (resolve, reject) =>
-      config.server.repos && config.server.repos[repo]
-        ? resolve(config)
-        : reject(createError("Repo not found"))
-  )
 
 const commandFailed = error => {
   !error.message && !error.source && console.error(`Error: ${error}`)
@@ -138,12 +154,9 @@ const deleteUser = (configfile, username) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
+    .then(config => checkConfigUserExists(config, username))
+    // FIXME check that the user isn't added to any repo! then fail!
     .then(config => {
-      if (!(config.server.users || {})[username])
-        throw createError("Username doesn't exist")
-
-      // FIXME check that the user isn't added to any repo! then fail
-
       const { [username]: userToRemove, ...remainingUsers } =
         config.server.users || {}
 
@@ -152,6 +165,36 @@ const deleteUser = (configfile, username) =>
         server: {
           ...config.server,
           users: remainingUsers
+        }
+      })
+        .then(configContent => writeFile(configfile, configContent))
+        .then(commandCompleted)
+    })
+    .catch(commandFailed)
+
+const addUser = (configfile, repo, username, accesslevel) =>
+  checkAccessLevel(accesslevel)
+    .then(() => checkFileExists(configfile))
+    .then(readFile)
+    .then(convertToJson)
+    .then(checkConfig)
+    .then(config => checkConfigUserExists(config, username))
+    .then(config => checkConfigRepo(config, repo))
+    .then(config => {
+      convertToText({
+        ...config,
+        server: {
+          ...config.server,
+          repos: {
+            ...config.server.repos,
+            [repo]: {
+              ...config.server.repos[repo],
+              users: {
+                ...(config.server.repos[repo].users || {}),
+                [username]: accesslevel
+              }
+            }
+          }
         }
       })
         .then(configContent => writeFile(configfile, configContent))
@@ -183,7 +226,7 @@ program
 program
   .command("adduser <configfile> <repo> <username> <accesslevel>")
   .description("Add an existing user to a repo")
-  .action(() => {})
+  .action(addUser)
 
 program
   .command("removeuser <configfile> <repo> <username>")
