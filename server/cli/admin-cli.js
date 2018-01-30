@@ -35,7 +35,7 @@ const checkConfigRepo = (config, repo) =>
         : reject(createError("Repo not found"))
   )
 
-const checkConfigUserExists = (config, username) =>
+const checkConfigUser = (config, username) =>
   new Promise(
     (resolve, reject) =>
       (config.server.users || {})[username]
@@ -43,7 +43,7 @@ const checkConfigUserExists = (config, username) =>
         : reject(createError("Username doesn't exist"))
   )
 
-const checkConfigUserExistsInRepo = (config, repo, username) =>
+const checkConfigUserInRepo = (config, repo, username) =>
   new Promise(
     (resolve, reject) =>
       (config.server.repos[repo].users || {})[username]
@@ -131,6 +131,7 @@ const createUser = (configfile, username, password) =>
     .then(convertToJson)
     .then(checkConfig)
     .then(config => {
+      // FIXME should be a check function
       if ((config.server.users || {})[username])
         throw createError("Username already exists")
 
@@ -162,7 +163,7 @@ const deleteUser = (configfile, username) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
-    .then(config => checkConfigUserExists(config, username))
+    .then(config => checkConfigUser(config, username))
     // FIXME check that the user isn't added to any repo! then fail!
     .then(config => {
       const { [username]: userToRemove, ...remainingUsers } =
@@ -186,7 +187,7 @@ const addUser = (configfile, repo, username, accesslevel) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
-    .then(config => checkConfigUserExists(config, username))
+    .then(config => checkConfigUser(config, username))
     .then(config => checkConfigRepo(config, repo))
     .then(config =>
       convertToText({
@@ -215,9 +216,9 @@ const removeUser = (configfile, repo, username) =>
     .then(readFile)
     .then(convertToJson)
     .then(checkConfig)
-    .then(config => checkConfigUserExists(config, username))
+    .then(config => checkConfigUser(config, username))
     .then(config => checkConfigRepo(config, repo))
-    .then(config => checkConfigUserExistsInRepo(config, repo, username))
+    .then(config => checkConfigUserInRepo(config, repo, username))
     .then(config => {
       const { [username]: userToRemove, ...remainingUsers } =
         config.server.repos[repo].users || {}
@@ -258,7 +259,6 @@ program
 program
   .command("changepassword <configfile> <username> <password>")
   .description("Change password for a user")
-  // FIXME keep salt
   .action(() => {})
 
 program
