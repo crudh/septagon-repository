@@ -8,12 +8,14 @@
   "main": "server/server.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node server/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon --watch server server/server.js",
+    "dev":
+      "cross-env NODE_ENV=development nodemon --watch server server/server.js",
     "lint": "eslint server",
     "lint:fix": "eslint --fix server",
     "test": "npm-run-all test:clean test:server",
     "test:server": "cross-env NODE_ENV=test jest",
-    "test:clean": "rimraf ./tmp/test"
+    "test:clean": "rimraf ./tmp/test",
+    "admin": "node server/cli/admin-cli.js"
   },
   "engines": {
     "node": ">=8.6.0"
@@ -54,11 +56,5 @@
     "url": "https://github.com/crudh/septagon-repository/issues"
   },
   "homepage": "https://github.com/crudh/septagon-repository#readme",
-  "keywords": [
-    "npm",
-    "repository",
-    "manager",
-    "registry",
-    "proxy"
-  ]
+  "keywords": ["npm", "repository", "manager", "registry", "proxy"]
 }
