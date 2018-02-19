@@ -1,6 +1,6 @@
 const getPackageVersion = package => Object.keys(package.versions)[0]
 
-const getVersionPackage = (package, version) => {
+const createNewVersionPackage = (package, version) => {
   const { readme, readmeFilename, ...versionPackage } = package.versions[
     version
   ]
@@ -23,29 +23,49 @@ const getVersionPackage = (package, version) => {
   }
 }
 
-const getMainPackage = package => {
-  const { versions, ...mainPackage } = package
-
+const createNewMainPackage = (package, newVersionPackage) => {
   // _rev is missing
-  // add all versions (only the latest is sent on publish)
-  // make _attachments an empty object and write the binary
+  // DONE: add only the new version first, it should use exact copy of newVersionPackage
+  // add all versions (only the latest is sent on publish) in other function
+  // DONE: make _attachments an empty object
+  // write the binary (in other function)
   // create time from all the versions
-  // add homepage, keywords, repository, author, bugs, license, readmeFileName from the new version
+  // DONE add homepage, keywords, repository, author, bugs, license, readmeFileName from the new version
   //     more?
 
-  return mainPackage
+  const attributesFromVersion = [
+    "homepage, keywords, repository, author, bugs, license, readmeFileName"
+  ].reduce(
+    (acc, cur) =>
+      newVersionPackage[cur] === undefined
+        ? acc
+        : {
+            ...acc,
+            [cur]: newVersionPackage[cur]
+          },
+    {}
+  )
+
+  return {
+    ...package,
+    versions: {
+      [newVersionPackage.version]: newVersionPackage
+    },
+    ...attributesFromVersion,
+    _attachments: {}
+  }
 }
 
 const publishPackage = async (repo, name, package) => {
   const version = getPackageVersion(package)
-  const versionPackage = getVersionPackage(package, version)
-  const mainPackage = getMainPackage(package)
+  const newVersionPackage = createNewVersionPackage(package, version)
+  const newMainPackage = createNewMainPackage(package, newVersionPackage)
 
-  console.info(mainPackage)
+  console.info(newMainPackage)
 
   //console.info(content)
   // - Do some validation, we don't want to create the dir too soon
-  //    ie there is a version supplied, the version isn't published, more?
+  //    ie there is a version supplied, the version isn't published, the package name, more?
   // - Transform the JSON to a version specific "file"
   // - Update or create the main "file"
   // - Check if dir exist, otherwise create
