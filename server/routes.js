@@ -42,6 +42,18 @@ const routes = app => {
       npmPackagesAPI.getMainPackage
     )
   )
+  app.put(
+    "/npm/:repo/:name",
+    addValidation(
+      [
+        createValidatorNpmPackageName("name"),
+        validatorRepoExists,
+        validatorRepoAuth
+      ],
+      npmPackagesAPI.publishPackage
+    )
+    //npmPackagesAPI.publishPackage
+  )
   app.get(
     "/npm/:repo/:name/:version",
     addValidation(

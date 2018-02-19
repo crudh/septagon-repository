@@ -4,6 +4,7 @@ const logger = require("winston")
 const { handleError } = require("../../common/api/errorHandling")
 const distFileHandler = require("../handlers/distfile")
 const packageHandler = require("../handlers/package")
+const publishPackageHandler = require("../handlers/publishPackage")
 
 const reposConfig = config.get("server.repos")
 
@@ -71,9 +72,26 @@ const searchPackage = (req, res) => {
     : request(repo.upstream + req.url.replace(/^\/npm\/main/, "")).pipe(res)
 }
 
+const publishPackage = (req, res) => {
+  const repo = req.params.repo
+  const name = req.params.name
+  const package = req.body
+
+  return publishPackageHandler(reposConfig[repo], name, package)
+    .then(() => {
+      // TODO is this all?
+      res.json({ ok: true })
+    })
+    .catch(error => {
+      logger.error(`Error when publishing package ${name}`, error)
+      return handleError(res, error)
+    })
+}
+
 module.exports = {
   getDistFile,
   getMainPackage,
   getVersionedPackage,
-  searchPackage
+  searchPackage,
+  publishPackage
 }
