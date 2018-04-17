@@ -1,5 +1,10 @@
 # septagon-repository
-A simple Node.js based npm repository manager and proxy.
+A simple Node.js based npm repository manager and proxy. 
+
+# Use caution
+This is currently an incomplete and untested side project I work on when I feel like it and have the time. I might publish it later when I have completed support for `npm publish`, added documentation and extended the tests.
+
+Also most npm operations are reverese engineered and are only tested with a small set of packages so they are not verified to handle all npm packages.
 
 ## Run in production mode
  * `npm install`
